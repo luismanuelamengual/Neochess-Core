@@ -728,10 +728,6 @@ export class Board {
         return isLegal;
     }
 
-    public inCheck (): boolean {
-        return this.isKingSquareAttacked(this.sideToMove);
-    }
-
     public getSAN(move: Move): string {
         let producesCheck = false;
         let producesCheckmate = false;
@@ -806,6 +802,26 @@ export class Board {
             }
         }
         return sanBuilder.toString();
+    }
+
+    public inCheck (): boolean {
+        return this.isKingSquareAttacked(this.sideToMove);
+    }
+
+    public isCheckMate(): boolean {
+        return this.inCheck() && this.getLegalMoves().length === 0;
+    }
+
+    public isStaleMate(): boolean {
+        return !this.inCheck() && this.getLegalMoves().length === 0;
+    }
+
+    public isDrawByFiftyMoveRule(): boolean {
+        return this.halfMoveCounter >= 50;
+    }
+
+    public isDraw(): boolean {
+        return this.isStaleMate() || this.isDrawByFiftyMoveRule();
     }
 
     public static getSquare(file: File, rank: Rank): Square {
