@@ -123,4 +123,21 @@ describe("Board tests", () => {
         expect(board.isMoveLegal(new Move(Square.F3, Square.E5))).toEqual(true);
         expect(board.isMoveLegal(new Move(Square.F3, Square.F5))).toEqual(false);
     });
+
+    test("States", () => {
+        const board = new Board();
+        board.setFEN('b7/5k2/8/8/8/5K2/8/8 w - - 0 1');
+        expect(board.inCheck()).toEqual(true);
+        board.setFEN('1b6/8/8/6k1/8/7K/r7/6n1 w - - 0 1');
+        expect(board.isCheckMate()).toEqual(true);
+        board.setFEN('1b6/8/8/6k1/8/7K/r7/8 w - - 50 1');
+        expect(board.isStaleMate()).toEqual(true);
+        expect(board.isDrawByFiftyMoveRule()).toEqual(true);
+        board.setFEN('8/8/8/6k1/8/7K/8/8 w - - 0 1');
+        expect(board.isDrawByInsufficientMaterial()).toEqual(true);
+        board.setFEN('8/8/4n3/6k1/8/6BK/8/8 w - - 0 1');
+        expect(board.isDrawByInsufficientMaterial()).toEqual(true);
+        board.setFEN('8/5r2/8/6k1/8/6BK/8/8 w - - 0 1');
+        expect(board.isDrawByInsufficientMaterial()).toEqual(false);
+    });
 });
