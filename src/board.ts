@@ -81,6 +81,16 @@ export class Board {
         return new Board(this);
     }
 
+    public equals(board: Board) {
+        for (let square = Square.A1; square <= Square.H8; square++) { if (this.squares[square] != board.squares[square]) return false; }
+        if (this.epSquare != board.epSquare) return false;
+        if (this.castleRights != board.castleRights) return false;
+        if (this.sideToMove != board.sideToMove) return false;
+        if (this.moveCounter != board.moveCounter) return false;
+        if (this.halfMoveCounter != board.halfMoveCounter) return false;
+        return true;
+    }
+
     public clear(): void {
         this.squares = [];
         this.epSquare = null;
