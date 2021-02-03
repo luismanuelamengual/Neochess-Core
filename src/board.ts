@@ -82,7 +82,7 @@ export class Board {
     }
 
     public clear(): void {
-        for (const square of Object.values(Square)) { this.removePiece(square as Square); }
+        this.squares = [];
         this.epSquare = null;
         this.castleRights = 0;
         this.sideToMove = Side.WHITE;
@@ -91,7 +91,7 @@ export class Board {
     }
 
     public setFrom(board: Board): Board {
-        for (const square of Object.values(Square)) { this.putPiece(square as Square, board.getPiece(square as Square)) }
+        for (let square = Square.A1; square <= Square.H8; square++) { this.squares[square] = board.squares[square]; }
         this.epSquare = board.epSquare;
         this.castleRights = board.castleRights;
         this.sideToMove = board.sideToMove;
