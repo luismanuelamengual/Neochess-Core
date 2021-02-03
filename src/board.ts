@@ -532,7 +532,10 @@ export class Board {
                             const leftCaptureSquare = BoardUtils.getOffsetSquare(testSquare, -1, 1);
                             if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && BoardUtils.getSide(this.getPiece(leftCaptureSquare)) == Side.BLACK) {
                                 if (BoardUtils.getRank(leftCaptureSquare) == Rank.EIGHT) {
-                                    moves.push(...this.createPromotionMoves(testSquare, leftCaptureSquare));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move(testSquare, leftCaptureSquare));
                                 }
@@ -540,7 +543,10 @@ export class Board {
                             const rightCaptureSquare = BoardUtils.getOffsetSquare(testSquare, 1, 1);
                             if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && BoardUtils.getSide(this.getPiece(rightCaptureSquare)) == Side.BLACK) {
                                 if (BoardUtils.getRank(rightCaptureSquare) == Rank.EIGHT) {
-                                    moves.push(...this.createPromotionMoves(testSquare, rightCaptureSquare));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move(testSquare, rightCaptureSquare));
                                 }
@@ -548,7 +554,10 @@ export class Board {
                             const nextSquare = BoardUtils.getOffsetSquare(testSquare, 0, 1);
                             if (this.getPiece(nextSquare) == null) {
                                 if (BoardUtils.getRank(nextSquare) == Rank.EIGHT) {
-                                    moves.push(...this.createPromotionMoves(testSquare, nextSquare));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move (testSquare, nextSquare));
                                     if (BoardUtils.getRank(testSquare) == Rank.TWO) {
@@ -563,7 +572,10 @@ export class Board {
                             const leftCaptureSquare = BoardUtils.getOffsetSquare(testSquare, -1, -1);
                             if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && BoardUtils.getSide(this.getPiece(leftCaptureSquare)) == Side.WHITE) {
                                 if (BoardUtils.getRank(leftCaptureSquare) == Rank.ONE) {
-                                    moves.push(...this.createPromotionMoves(testSquare, leftCaptureSquare));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, leftCaptureSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move(testSquare, leftCaptureSquare));
                                 }
@@ -571,7 +583,10 @@ export class Board {
                             const rightCaptureSquare = BoardUtils.getOffsetSquare(testSquare, 1, -1);
                             if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && BoardUtils.getSide(this.getPiece(rightCaptureSquare)) == Side.WHITE) {
                                 if (BoardUtils.getRank(rightCaptureSquare) == Rank.ONE) {
-                                    moves.push(...this.createPromotionMoves(testSquare, rightCaptureSquare));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, rightCaptureSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move(testSquare, rightCaptureSquare));
                                 }
@@ -579,7 +594,10 @@ export class Board {
                             const nextSquare = BoardUtils.getOffsetSquare(testSquare, 0, -1);
                             if (this.getPiece(nextSquare) == null) {
                                 if (BoardUtils.getRank(nextSquare) == Rank.ONE) {
-                                    moves.push(...this.createPromotionMoves(testSquare, nextSquare));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.QUEEN));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.ROOK));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.BISHOP));
+                                    moves.push(new Move(testSquare, nextSquare, Figure.KNIGHT));
                                 } else {
                                     moves.push(new Move(testSquare, nextSquare));
                                     if (BoardUtils.getRank(testSquare) == Rank.SEVEN) {
@@ -802,14 +820,5 @@ export class Board {
 
     public isDraw(): boolean {
         return this.isStaleMate() || this.isDrawByFiftyMoveRule() || this.isDrawByInsufficientMaterial();
-    }
-
-    private createPromotionMoves (fromSquare: Square, toSquare: Square): Array<Move> {
-        const promotionMoves: Array<Move> = [];
-        promotionMoves.push(new Move(fromSquare, toSquare, Figure.QUEEN));
-        promotionMoves.push(new Move(fromSquare, toSquare, Figure.ROOK));
-        promotionMoves.push(new Move(fromSquare, toSquare, Figure.BISHOP));
-        promotionMoves.push(new Move(fromSquare, toSquare, Figure.KNIGHT));
-        return promotionMoves;
     }
 }
