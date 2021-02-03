@@ -37,13 +37,25 @@ export class Match {
     }
 
     public makeMove(move: Move|string): boolean {
+        let moveMade = false;
         const legalMove = this.getLegalMove(move);
         if (legalMove != null) {
             const board = this.board.clone();
             this.board.makeMove(legalMove);
             this.historySlots.push(new HistorySlot(board, legalMove));
+            moveMade = true;
         }
-        return legalMove != null;
+        return moveMade;
+    }
+
+    public unmakeMove(): boolean {
+        let moveUnmade = false;
+        const lastHistorySlot = this.historySlots.pop();
+        if (lastHistorySlot) {
+            this.board.setFrom(lastHistorySlot.getBoard());
+            moveUnmade = true;
+        }
+        return moveUnmade;
     }
 
     private getLegalMove(move: Move|string): Move {
