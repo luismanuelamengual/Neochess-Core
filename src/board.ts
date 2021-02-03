@@ -5,58 +5,9 @@ import {Rank} from './rank';
 import {File} from './file';
 import {Move} from './move';
 import {Figure} from './figure';
+import {BoardUtils} from "./board-utils";
 
 export class Board {
-
-    private static WHITE_KING_SIDE_CASTLE = 1;
-    private static WHITE_QUEEN_SIDE_CASTLE = 2;
-    private static BLACK_KING_SIDE_CASTLE = 4;
-    private static BLACK_QUEEN_SIDE_CASTLE = 8;
-
-    private static CASTLE_MASK = [
-        13, 15, 15, 15, 12, 15, 15, 14,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        7, 15, 15, 15,  3, 15, 15, 11
-    ];
-
-    private static SQUARE_MAP = [
-        null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, null,
-        null,  0,  1,  2,  3,  4,  5,  6,  7, null,
-        null,  8,  9, 10, 11, 12, 13, 14, 15, null,
-        null, 16, 17, 18, 19, 20, 21, 22, 23, null,
-        null, 24, 25, 26, 27, 28, 29, 30, 31, null,
-        null, 32, 33, 34, 35, 36, 37, 38, 39, null,
-        null, 40, 41, 42, 43, 44, 45, 46, 47, null,
-        null, 48, 49, 50, 51, 52, 53, 54, 55, null,
-        null, 56, 57, 58, 59, 60, 61, 62, 63, null,
-        null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, null  ];
-
-    private static SQUARE_MAP_OFFSETS = [
-        21, 22, 23, 24, 25, 26, 27, 28,
-        31, 32, 33, 34, 35, 36, 37, 38,
-        41, 42, 43, 44, 45, 46, 47, 48,
-        51, 52, 53, 54, 55, 56, 57, 58,
-        61, 62, 63, 64, 65, 66, 67, 68,
-        71, 72, 73, 74, 75, 76, 77, 78,
-        81, 82, 83, 84, 85, 86, 87, 88,
-        91, 92, 93, 94, 95, 96, 97, 98,
-    ];
-
-    private static FIGURE_OFFSETS = [
-        [],
-        [[1, 2], [1, -2], [2, 1], [2, -1], [-1, 2], [-1, -2], [-2, 1], [-2, -1]],
-        [[1, 1], [1, -1], [-1, 1], [-1, -1]],
-        [[1, 0], [-1, 0], [0, 1], [0, -1]],
-        [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]],
-        [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]
-    ];
 
     private squares: Array<Piece> = [];
     private epSquare: Square;
@@ -140,54 +91,54 @@ export class Board {
 
     public setWhiteKingSideCastle(whiteKingSideCastle: boolean): Board {
         if (whiteKingSideCastle) {
-            this.castleRights |= Board.WHITE_KING_SIDE_CASTLE;
+            this.castleRights |= BoardUtils.WHITE_KING_SIDE_CASTLE;
         } else {
-            this.castleRights &= (Board.WHITE_QUEEN_SIDE_CASTLE | Board.BLACK_KING_SIDE_CASTLE | Board.BLACK_QUEEN_SIDE_CASTLE);
+            this.castleRights &= (BoardUtils.WHITE_QUEEN_SIDE_CASTLE | BoardUtils.BLACK_KING_SIDE_CASTLE | BoardUtils.BLACK_QUEEN_SIDE_CASTLE);
         }
         return this;
     }
 
     public setWhiteQueenSideCastle(whiteQueenSideCastle: boolean): Board {
         if (whiteQueenSideCastle) {
-            this.castleRights |= Board.WHITE_QUEEN_SIDE_CASTLE;
+            this.castleRights |= BoardUtils.WHITE_QUEEN_SIDE_CASTLE;
         } else {
-            this.castleRights &= (Board.WHITE_KING_SIDE_CASTLE | Board.BLACK_KING_SIDE_CASTLE | Board.BLACK_QUEEN_SIDE_CASTLE);
+            this.castleRights &= (BoardUtils.WHITE_KING_SIDE_CASTLE | BoardUtils.BLACK_KING_SIDE_CASTLE | BoardUtils.BLACK_QUEEN_SIDE_CASTLE);
         }
         return this;
     }
 
     public setBlackKingSideCastle(blackKingSideCastle: boolean): Board {
         if (blackKingSideCastle) {
-            this.castleRights |= Board.BLACK_KING_SIDE_CASTLE;
+            this.castleRights |= BoardUtils.BLACK_KING_SIDE_CASTLE;
         } else {
-            this.castleRights &= (Board.BLACK_QUEEN_SIDE_CASTLE | Board.WHITE_KING_SIDE_CASTLE | Board.WHITE_QUEEN_SIDE_CASTLE);
+            this.castleRights &= (BoardUtils.BLACK_QUEEN_SIDE_CASTLE | BoardUtils.WHITE_KING_SIDE_CASTLE | BoardUtils.WHITE_QUEEN_SIDE_CASTLE);
         }
         return this;
     }
 
     public setBlackQueenSideCastle(blackQueenSideCastle: boolean): Board {
         if (blackQueenSideCastle) {
-            this.castleRights |= Board.BLACK_QUEEN_SIDE_CASTLE;
+            this.castleRights |= BoardUtils.BLACK_QUEEN_SIDE_CASTLE;
         } else {
-            this.castleRights &= (Board.BLACK_KING_SIDE_CASTLE | Board.WHITE_KING_SIDE_CASTLE | Board.WHITE_QUEEN_SIDE_CASTLE);
+            this.castleRights &= (BoardUtils.BLACK_KING_SIDE_CASTLE | BoardUtils.WHITE_KING_SIDE_CASTLE | BoardUtils.WHITE_QUEEN_SIDE_CASTLE);
         }
         return this;
     }
 
     public canWhiteKingSideCastle(): boolean {
-        return (this.castleRights & Board.WHITE_KING_SIDE_CASTLE) > 0;
+        return (this.castleRights & BoardUtils.WHITE_KING_SIDE_CASTLE) > 0;
     }
 
     public canWhiteQueenSideCastle(): boolean {
-        return (this.castleRights & Board.WHITE_QUEEN_SIDE_CASTLE) > 0;
+        return (this.castleRights & BoardUtils.WHITE_QUEEN_SIDE_CASTLE) > 0;
     }
 
     public canBlackKingSideCastle(): boolean {
-        return (this.castleRights & Board.BLACK_KING_SIDE_CASTLE) > 0;
+        return (this.castleRights & BoardUtils.BLACK_KING_SIDE_CASTLE) > 0;
     }
 
     public canBlackQueenSideCastle(): boolean {
-        return (this.castleRights & Board.BLACK_QUEEN_SIDE_CASTLE) > 0;
+        return (this.castleRights & BoardUtils.BLACK_QUEEN_SIDE_CASTLE) > 0;
     }
 
     public setSideToMove(side: Side): Board {
@@ -233,7 +184,7 @@ export class Board {
                 if (fenCharacter >= '0' && fenCharacter <= '9') {
                     fileIndex += parseInt(fenCharacter);
                 } else {
-                    const square = Board.getSquare(files[fileIndex], ranks[rankIndex]);
+                    const square = BoardUtils.getSquare(files[fileIndex], ranks[rankIndex]);
                     let piece: Piece = null;
                     switch (fenCharacter) {
                         case 'p': piece = Piece.BLACK_PAWN; break;
@@ -261,16 +212,16 @@ export class Board {
 
         let castleRights = 0;
         if (state.indexOf("K") >= 0) {
-            castleRights |= Board.WHITE_KING_SIDE_CASTLE;
+            castleRights |= BoardUtils.WHITE_KING_SIDE_CASTLE;
         }
         if (state.indexOf("Q") >= 0) {
-            castleRights |= Board.WHITE_QUEEN_SIDE_CASTLE;
+            castleRights |= BoardUtils.WHITE_QUEEN_SIDE_CASTLE;
         }
         if (state.indexOf("k") >= 0) {
-            castleRights |= Board.BLACK_KING_SIDE_CASTLE;
+            castleRights |= BoardUtils.BLACK_KING_SIDE_CASTLE;
         }
         if (state.indexOf("q") >= 0) {
-            castleRights |= Board.BLACK_QUEEN_SIDE_CASTLE;
+            castleRights |= BoardUtils.BLACK_QUEEN_SIDE_CASTLE;
         }
         this.castleRights = castleRights;
 
@@ -280,7 +231,7 @@ export class Board {
                 const s = flags[2].trim();
                 let epSquare: Square = null;
                 if (s !== '-') {
-                    epSquare = Board.getSquareFromString(s);
+                    epSquare = BoardUtils.getSquareFromString(s);
                 }
                 this.setEpSquare(epSquare);
                 if (flags.length >= 4) {
@@ -306,13 +257,13 @@ export class Board {
             const rank = ranks[rankIndex];
             for (let fileIndex = 0; fileIndex <= 7; fileIndex++) {
                 let file = files[fileIndex];
-                let square = Board.getSquare(file, rank);
+                let square = BoardUtils.getSquare(file, rank);
                 const piece = this.getPiece(square);
                 if (piece == null) {
                     let spaceCounter = 1;
                     while ((++fileIndex) <= 7) {
                         file = files[fileIndex];
-                        square = Board.getSquare(file, rank);
+                        square = BoardUtils.getSquare(file, rank);
                         if (this.getPiece(square) == null)
                             spaceCounter++;
                         else
@@ -347,16 +298,16 @@ export class Board {
 
         fen += ' ';
         if (this.castleRights > 0) {
-            if (this.castleRights & Board.WHITE_KING_SIDE_CASTLE) {
+            if (this.castleRights & BoardUtils.WHITE_KING_SIDE_CASTLE) {
                 fen += 'K';
             }
-            if (this.castleRights & Board.WHITE_QUEEN_SIDE_CASTLE) {
+            if (this.castleRights & BoardUtils.WHITE_QUEEN_SIDE_CASTLE) {
                 fen += 'Q';
             }
-            if (this.castleRights & Board.BLACK_KING_SIDE_CASTLE) {
+            if (this.castleRights & BoardUtils.BLACK_KING_SIDE_CASTLE) {
                 fen += 'k';
             }
-            if (this.castleRights & Board.BLACK_QUEEN_SIDE_CASTLE) {
+            if (this.castleRights & BoardUtils.BLACK_QUEEN_SIDE_CASTLE) {
                 fen += 'q';
             }
         } else {
@@ -365,7 +316,7 @@ export class Board {
 
         fen += ' ';
         if (this.epSquare != null) {
-            fen += Board.getSquareString(this.epSquare)
+            fen += BoardUtils.getSquareString(this.epSquare)
         } else {
             fen  += '-';
         }
@@ -381,18 +332,18 @@ export class Board {
         const toSquare = move.getToSquare();
         let movingPiece = this.getPiece(fromSquare);
         const capturedPiece = this.getPiece(toSquare);
-        const movingFigure = Board.getFigure(movingPiece);
+        const movingFigure = BoardUtils.getFigure(movingPiece);
 
         if (movingFigure == Figure.PAWN) {
-            const fromSquareRank = Board.getRank(fromSquare);
+            const fromSquareRank = BoardUtils.getRank(fromSquare);
             if (this.sideToMove == Side.WHITE) {
                 if (fromSquareRank == Rank.TWO && (toSquare - fromSquare) === 16) {
                     this.epSquare = toSquare - 8;
                 } else {
                     if (toSquare == this.epSquare) {
                         this.removePiece(toSquare - 8);
-                    } else if (Board.getRank(toSquare) == Rank.EIGHT) {
-                        movingPiece = Board.getPiece(this.sideToMove, move.getPromotionFigure());
+                    } else if (BoardUtils.getRank(toSquare) == Rank.EIGHT) {
+                        movingPiece = BoardUtils.getPiece(this.sideToMove, move.getPromotionFigure());
                     }
                     this.epSquare = null;
                 }
@@ -402,8 +353,8 @@ export class Board {
                 } else {
                     if (toSquare == this.epSquare) {
                         this.removePiece(toSquare + 8);
-                    } else if (Board.getRank(toSquare) == Rank.ONE) {
-                        movingPiece = Board.getPiece(this.sideToMove, move.getPromotionFigure());
+                    } else if (BoardUtils.getRank(toSquare) == Rank.ONE) {
+                        movingPiece = BoardUtils.getPiece(this.sideToMove, move.getPromotionFigure());
                     }
                     this.epSquare = null;
                 }
@@ -439,14 +390,14 @@ export class Board {
 
         this.removePiece(fromSquare);
         this.putPiece(toSquare, movingPiece);
-        this.castleRights &= Board.CASTLE_MASK[fromSquare] & Board.CASTLE_MASK[toSquare];
+        this.castleRights &= BoardUtils.CASTLE_MASK[fromSquare] & BoardUtils.CASTLE_MASK[toSquare];
         this.moveCounter++;
         if (movingFigure == Figure.PAWN || capturedPiece != null) {
             this.halfMoveCounter = 0;
         } else {
             this.halfMoveCounter++;
         }
-        this.sideToMove = Board.getOppositeSide(this.sideToMove);
+        this.sideToMove = BoardUtils.getOppositeSide(this.sideToMove);
         return this;
     }
 
@@ -455,23 +406,23 @@ export class Board {
             const testSquare = value as Square;
             const piece = this.getPiece(testSquare);
             if (piece != null) {
-                const pieceSide = Board.getSide(piece);
+                const pieceSide = BoardUtils.getSide(piece);
                 if (side == pieceSide) {
-                    const pieceFigure = Board.getFigure(piece);
+                    const pieceFigure = BoardUtils.getFigure(piece);
                     if (pieceFigure == Figure.PAWN) {
-                        const pieceFile = Board.getFile(testSquare);
+                        const pieceFile = BoardUtils.getFile(testSquare);
                         if (side == Side.WHITE) {
-                            if (pieceFile !== File.A && Board.getOffsetSquare(testSquare, -1, 1) == square) return true;
-                            if (pieceFile !== File.H && Board.getOffsetSquare(testSquare, 1, 1) == square) return true;
+                            if (pieceFile !== File.A && BoardUtils.getOffsetSquare(testSquare, -1, 1) == square) return true;
+                            if (pieceFile !== File.H && BoardUtils.getOffsetSquare(testSquare, 1, 1) == square) return true;
                         } else {
-                            if (pieceFile !== File.A && Board.getOffsetSquare(testSquare, -1, -1) == square) return true;
-                            if (pieceFile !== File.H && Board.getOffsetSquare(testSquare, 1, -1) == square) return true;
+                            if (pieceFile !== File.A && BoardUtils.getOffsetSquare(testSquare, -1, -1) == square) return true;
+                            if (pieceFile !== File.H && BoardUtils.getOffsetSquare(testSquare, 1, -1) == square) return true;
                         }
                     } else {
-                        for (const offset of Board.FIGURE_OFFSETS[pieceFigure]) {
+                        for (const offset of BoardUtils.FIGURE_OFFSETS[pieceFigure]) {
                             let currentOffsetSquare = testSquare;
                             while (true) {
-                                currentOffsetSquare = Board.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
+                                currentOffsetSquare = BoardUtils.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
                                 if (currentOffsetSquare == null) {
                                     break;
                                 }
@@ -498,32 +449,32 @@ export class Board {
         for (let testSquare = Square.A1; testSquare <= Square.H8; testSquare++) {
             const piece = this.getPiece(testSquare);
             if (piece != null) {
-                const pieceSide = Board.getSide(piece);
+                const pieceSide = BoardUtils.getSide(piece);
                 if (side == pieceSide) {
-                    const pieceFigure = Board.getFigure(piece);
+                    const pieceFigure = BoardUtils.getFigure(piece);
                     if (pieceFigure == Figure.PAWN) {
-                        const pieceFile = Board.getFile(testSquare);
+                        const pieceFile = BoardUtils.getFile(testSquare);
                         if (side == Side.WHITE) {
-                            if (pieceFile != File.A && Board.getOffsetSquare(testSquare, -1, 1) == square) {
+                            if (pieceFile != File.A && BoardUtils.getOffsetSquare(testSquare, -1, 1) == square) {
                                 squares.push(testSquare);
                             }
-                            if (pieceFile != File.H && Board.getOffsetSquare(testSquare, 1, 1) == square) {
+                            if (pieceFile != File.H && BoardUtils.getOffsetSquare(testSquare, 1, 1) == square) {
                                 squares.push(testSquare);
                             }
                         } else {
-                            if (pieceFile != File.A && Board.getOffsetSquare(testSquare, -1, -1) == square) {
+                            if (pieceFile != File.A && BoardUtils.getOffsetSquare(testSquare, -1, -1) == square) {
                                 squares.push(testSquare);
                             }
-                            if (pieceFile != File.H && Board.getOffsetSquare(testSquare, 1, -1) == square) {
+                            if (pieceFile != File.H && BoardUtils.getOffsetSquare(testSquare, 1, -1) == square) {
                                 squares.push(testSquare);
                             }
                         }
                     } else {
                         let squareFound = false;
-                        for (const offset of Board.FIGURE_OFFSETS[pieceFigure]) {
+                        for (const offset of BoardUtils.FIGURE_OFFSETS[pieceFigure]) {
                             let currentOffsetSquare = testSquare;
                             while (true) {
-                                currentOffsetSquare = Board.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
+                                currentOffsetSquare = BoardUtils.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
                                 if (currentOffsetSquare == null) {
                                     break;
                                 }
@@ -563,45 +514,45 @@ export class Board {
     }
 
     public isKingSquareAttacked (side: Side): boolean {
-        return this.isSquareAttacked(this.getKingSquare(side), Board.getOppositeSide(side));
+        return this.isSquareAttacked(this.getKingSquare(side), BoardUtils.getOppositeSide(side));
     }
 
     public getLegalMoves (): Array<Move > {
         let moves: Array<Move> = [];
-        const oppositeSide = Board.getOppositeSide(this.sideToMove);
+        const oppositeSide = BoardUtils.getOppositeSide(this.sideToMove);
         for (let testSquare = Square.A1; testSquare <= Square.H8; testSquare++) {
             const piece = this.getPiece(testSquare);
             if (piece != null) {
-                const pieceSide = Board.getSide(piece);
+                const pieceSide = BoardUtils.getSide(piece);
                 if (this.sideToMove == pieceSide) {
-                    const pieceFigure = Board.getFigure(piece);
+                    const pieceFigure = BoardUtils.getFigure(piece);
                     if (pieceFigure == Figure.PAWN) {
-                        const pieceFile = Board.getFile(testSquare);
+                        const pieceFile = BoardUtils.getFile(testSquare);
                         if (this.sideToMove == Side.WHITE) {
-                            const leftCaptureSquare = Board.getOffsetSquare(testSquare, -1, 1);
-                            if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && Board.getSide(this.getPiece(leftCaptureSquare)) == Side.BLACK) {
-                                if (Board.getRank(leftCaptureSquare) == Rank.EIGHT) {
+                            const leftCaptureSquare = BoardUtils.getOffsetSquare(testSquare, -1, 1);
+                            if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && BoardUtils.getSide(this.getPiece(leftCaptureSquare)) == Side.BLACK) {
+                                if (BoardUtils.getRank(leftCaptureSquare) == Rank.EIGHT) {
                                     moves.push(...this.createPromotionMoves(testSquare, leftCaptureSquare));
                                 } else {
                                     moves.push(new Move(testSquare, leftCaptureSquare));
                                 }
                             }
-                            const rightCaptureSquare = Board.getOffsetSquare(testSquare, 1, 1);
-                            if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && Board.getSide(this.getPiece(rightCaptureSquare)) == Side.BLACK) {
-                                if (Board.getRank(rightCaptureSquare) == Rank.EIGHT) {
+                            const rightCaptureSquare = BoardUtils.getOffsetSquare(testSquare, 1, 1);
+                            if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && BoardUtils.getSide(this.getPiece(rightCaptureSquare)) == Side.BLACK) {
+                                if (BoardUtils.getRank(rightCaptureSquare) == Rank.EIGHT) {
                                     moves.push(...this.createPromotionMoves(testSquare, rightCaptureSquare));
                                 } else {
                                     moves.push(new Move(testSquare, rightCaptureSquare));
                                 }
                             }
-                            const nextSquare = Board.getOffsetSquare(testSquare, 0, 1);
+                            const nextSquare = BoardUtils.getOffsetSquare(testSquare, 0, 1);
                             if (this.getPiece(nextSquare) == null) {
-                                if (Board.getRank(nextSquare) == Rank.EIGHT) {
+                                if (BoardUtils.getRank(nextSquare) == Rank.EIGHT) {
                                     moves.push(...this.createPromotionMoves(testSquare, nextSquare));
                                 } else {
                                     moves.push(new Move (testSquare, nextSquare));
-                                    if (Board.getRank(testSquare) == Rank.TWO) {
-                                        const nextTwoSquare = Board.getOffsetSquare(testSquare, 0, 2);
+                                    if (BoardUtils.getRank(testSquare) == Rank.TWO) {
+                                        const nextTwoSquare = BoardUtils.getOffsetSquare(testSquare, 0, 2);
                                         if (this.getPiece(nextTwoSquare) == null) {
                                             moves.push(new Move(testSquare, nextTwoSquare));
                                         }
@@ -609,30 +560,30 @@ export class Board {
                                 }
                             }
                         } else {
-                            const leftCaptureSquare = Board.getOffsetSquare(testSquare, -1, -1);
-                            if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && Board.getSide(this.getPiece(leftCaptureSquare)) == Side.WHITE) {
-                                if (Board.getRank(leftCaptureSquare) == Rank.ONE) {
+                            const leftCaptureSquare = BoardUtils.getOffsetSquare(testSquare, -1, -1);
+                            if (pieceFile != File.A && this.getPiece(leftCaptureSquare) != null && BoardUtils.getSide(this.getPiece(leftCaptureSquare)) == Side.WHITE) {
+                                if (BoardUtils.getRank(leftCaptureSquare) == Rank.ONE) {
                                     moves.push(...this.createPromotionMoves(testSquare, leftCaptureSquare));
                                 } else {
                                     moves.push(new Move(testSquare, leftCaptureSquare));
                                 }
                             }
-                            const rightCaptureSquare = Board.getOffsetSquare(testSquare, 1, -1);
-                            if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && Board.getSide(this.getPiece(rightCaptureSquare)) == Side.WHITE) {
-                                if (Board.getRank(rightCaptureSquare) == Rank.ONE) {
+                            const rightCaptureSquare = BoardUtils.getOffsetSquare(testSquare, 1, -1);
+                            if (pieceFile != File.H && this.getPiece(rightCaptureSquare) != null && BoardUtils.getSide(this.getPiece(rightCaptureSquare)) == Side.WHITE) {
+                                if (BoardUtils.getRank(rightCaptureSquare) == Rank.ONE) {
                                     moves.push(...this.createPromotionMoves(testSquare, rightCaptureSquare));
                                 } else {
                                     moves.push(new Move(testSquare, rightCaptureSquare));
                                 }
                             }
-                            const nextSquare = Board.getOffsetSquare(testSquare, 0, -1);
+                            const nextSquare = BoardUtils.getOffsetSquare(testSquare, 0, -1);
                             if (this.getPiece(nextSquare) == null) {
-                                if (Board.getRank(nextSquare) == Rank.ONE) {
+                                if (BoardUtils.getRank(nextSquare) == Rank.ONE) {
                                     moves.push(...this.createPromotionMoves(testSquare, nextSquare));
                                 } else {
                                     moves.push(new Move(testSquare, nextSquare));
-                                    if (Board.getRank(testSquare) == Rank.SEVEN) {
-                                        const nextTwoSquare = Board.getOffsetSquare(testSquare, 0, -2);
+                                    if (BoardUtils.getRank(testSquare) == Rank.SEVEN) {
+                                        const nextTwoSquare = BoardUtils.getOffsetSquare(testSquare, 0, -2);
                                         if (this.getPiece(nextTwoSquare) == null) {
                                             moves.push(new Move(testSquare, nextTwoSquare));
                                         }
@@ -641,16 +592,16 @@ export class Board {
                             }
                         }
                     } else {
-                        for (const offset of Board.FIGURE_OFFSETS[pieceFigure]) {
+                        for (const offset of BoardUtils.FIGURE_OFFSETS[pieceFigure]) {
                             let currentOffsetSquare = testSquare;
                             while (true) {
-                                currentOffsetSquare = Board.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
+                                currentOffsetSquare = BoardUtils.getOffsetSquare(currentOffsetSquare, offset[0], offset[1]);
                                 if (currentOffsetSquare == null) {
                                     break;
                                 }
                                 const pieceAtCurrentSquare = this.getPiece(currentOffsetSquare);
                                 if (pieceAtCurrentSquare != null) {
-                                    if (Board.getSide(pieceAtCurrentSquare) == oppositeSide) {
+                                    if (BoardUtils.getSide(pieceAtCurrentSquare) == oppositeSide) {
                                         moves.push(new Move(testSquare, currentOffsetSquare));
                                     }
                                     break;
@@ -682,12 +633,12 @@ export class Board {
                 }
             }
             if (this.epSquare != null) {
-                const epSquareFile = Board.getFile(this.epSquare);
-                if (epSquareFile != File.A && this.getPiece(Board.getOffsetSquare(this.epSquare, -1,-1)) == Piece.WHITE_PAWN) {
-                    moves.push(new Move(Board.getOffsetSquare(this.epSquare, -1,-1), this.epSquare));
+                const epSquareFile = BoardUtils.getFile(this.epSquare);
+                if (epSquareFile != File.A && this.getPiece(BoardUtils.getOffsetSquare(this.epSquare, -1,-1)) == Piece.WHITE_PAWN) {
+                    moves.push(new Move(BoardUtils.getOffsetSquare(this.epSquare, -1,-1), this.epSquare));
                 }
-                if (epSquareFile != File.H && this.getPiece(Board.getOffsetSquare(this.epSquare, 1,-1)) == Piece.WHITE_PAWN) {
-                    moves.push(new Move(Board.getOffsetSquare(this.epSquare, 1,-1), this.epSquare));
+                if (epSquareFile != File.H && this.getPiece(BoardUtils.getOffsetSquare(this.epSquare, 1,-1)) == Piece.WHITE_PAWN) {
+                    moves.push(new Move(BoardUtils.getOffsetSquare(this.epSquare, 1,-1), this.epSquare));
                 }
             }
         } else {
@@ -706,12 +657,12 @@ export class Board {
                 }
             }
             if (this.epSquare != null) {
-                const epSquareFile = Board.getFile(this.epSquare);
-                if (epSquareFile != File.A && this.getPiece(Board.getOffsetSquare(this.epSquare, -1,1)) == Piece.BLACK_PAWN) {
-                    moves.push(new Move(Board.getOffsetSquare(this.epSquare, -1,1), this.epSquare));
+                const epSquareFile = BoardUtils.getFile(this.epSquare);
+                if (epSquareFile != File.A && this.getPiece(BoardUtils.getOffsetSquare(this.epSquare, -1,1)) == Piece.BLACK_PAWN) {
+                    moves.push(new Move(BoardUtils.getOffsetSquare(this.epSquare, -1,1), this.epSquare));
                 }
-                if (epSquareFile != File.H && this.getPiece(Board.getOffsetSquare(this.epSquare,1,1)) == Piece.BLACK_PAWN) {
-                    moves.push(new Move(Board.getOffsetSquare(this.epSquare, 1,1), this.epSquare));
+                if (epSquareFile != File.H && this.getPiece(BoardUtils.getOffsetSquare(this.epSquare,1,1)) == Piece.BLACK_PAWN) {
+                    moves.push(new Move(BoardUtils.getOffsetSquare(this.epSquare, 1,1), this.epSquare));
                 }
             }
         }
@@ -756,9 +707,9 @@ export class Board {
         const fromSquare = move.getFromSquare();
         const toSquare = move.getToSquare();
         const promotionFigure = move.getPromotionFigure();
-        const fromSquareFile = Board.getFile(fromSquare);
-        const fromSquareRank = Board.getRank(fromSquare);
-        const toSquareRank = Board.getRank(toSquare);
+        const fromSquareFile = BoardUtils.getFile(fromSquare);
+        const fromSquareRank = BoardUtils.getRank(fromSquare);
+        const toSquareRank = BoardUtils.getRank(toSquare);
 
         let sanBuilder = '';
         if ((movingPiece == Piece.WHITE_KING && fromSquare == Square.E1 && toSquare == Square.G1) || (movingPiece == Piece.BLACK_KING && fromSquare == Square.E8 && toSquare == Square.G8)) {
@@ -766,27 +717,27 @@ export class Board {
         } else if ((movingPiece == Piece.WHITE_KING && fromSquare == Square.E1 && toSquare == Square.C1) || (movingPiece == Piece.BLACK_KING && fromSquare == Square.E8 && toSquare == Square.C8)) {
             sanBuilder = 'O-O-O';
         } else {
-            const movingFigure = Board.getFigure(movingPiece);
+            const movingFigure = BoardUtils.getFigure(movingPiece);
             if (movingFigure == Figure.PAWN) {
                 if (capturedPiece != null || toSquare == enPassantSquare) {
-                    sanBuilder += Board.getFileString(fromSquareFile);
+                    sanBuilder += BoardUtils.getFileString(fromSquareFile);
                     sanBuilder += 'x';
                 }
-                sanBuilder += Board.getSquareString(toSquare);
+                sanBuilder += BoardUtils.getSquareString(toSquare);
                 if ((sideToMove == Side.WHITE && toSquareRank == Rank.EIGHT) || (sideToMove == Side.BLACK && toSquareRank == Rank.ONE)) {
                     sanBuilder += '=';
-                    sanBuilder += Board.getFigureString(promotionFigure);
+                    sanBuilder += BoardUtils.getFigureString(promotionFigure);
                 }
             } else {
-                sanBuilder += Board.getFigureString(movingFigure);
+                sanBuilder += BoardUtils.getFigureString(movingFigure);
                 let figureAttackingSquares = this.getAttackingSquares(toSquare, sideToMove);
-                figureAttackingSquares = figureAttackingSquares.filter(square => Board.getFigure(this.getPiece(square)) == movingFigure);
+                figureAttackingSquares = figureAttackingSquares.filter(square => BoardUtils.getFigure(this.getPiece(square)) == movingFigure);
                 if (figureAttackingSquares.length > 1) {
                     let fileAttackingFigures = 0;
                     let rankAttackingFigures = 0;
                     for (const square of figureAttackingSquares) {
-                        const squareFile = Board.getFile(square);
-                        const squareRank = Board.getRank(square);
+                        const squareFile = BoardUtils.getFile(square);
+                        const squareRank = BoardUtils.getRank(square);
                         if (fromSquareFile == squareFile) {
                             fileAttackingFigures++;
                         }
@@ -795,16 +746,16 @@ export class Board {
                         }
                     }
                     if (rankAttackingFigures > 1 || (rankAttackingFigures == 1 && fileAttackingFigures == 1)) {
-                        sanBuilder += Board.getFileString(fromSquareFile);
+                        sanBuilder += BoardUtils.getFileString(fromSquareFile);
                     }
                     if (fileAttackingFigures > 1) {
-                        sanBuilder += Board.getRankString(fromSquareRank);
+                        sanBuilder += BoardUtils.getRankString(fromSquareRank);
                     }
                 }
                 if (capturedPiece != null) {
                     sanBuilder += 'x';
                 }
-                sanBuilder += Board.getSquareString(toSquare);
+                sanBuilder += BoardUtils.getSquareString(toSquare);
             }
 
             if (producesCheck) {
@@ -835,8 +786,8 @@ export class Board {
         for (let square = Square.A1; square <= Square.H8; square++) {
             const piece = this.getPiece(square);
             if (piece) {
-                const side = Board.getSide(piece);
-                const figure = Board.getFigure(piece);
+                const side = BoardUtils.getSide(piece);
+                const figure = BoardUtils.getFigure(piece);
                 if (figure != Figure.KING) {
                     if ((figure != Figure.KNIGHT && figure != Figure.BISHOP) || hasMinorPiece[side]) {
                         return false;
@@ -853,10 +804,6 @@ export class Board {
         return this.isStaleMate() || this.isDrawByFiftyMoveRule() || this.isDrawByInsufficientMaterial();
     }
 
-    public static getSquare(file: File, rank: Rank): Square {
-        return (rank * 8) + file;
-    }
-
     private createPromotionMoves (fromSquare: Square, toSquare: Square): Array<Move> {
         const promotionMoves: Array<Move> = [];
         promotionMoves.push(new Move(fromSquare, toSquare, Figure.QUEEN));
@@ -864,70 +811,5 @@ export class Board {
         promotionMoves.push(new Move(fromSquare, toSquare, Figure.BISHOP));
         promotionMoves.push(new Move(fromSquare, toSquare, Figure.KNIGHT));
         return promotionMoves;
-    }
-
-    private static getFileString (file: File): string {
-        return String.fromCharCode(file + 97);
-    }
-
-    private static getRankString (rank: Rank): string {
-        return String.fromCharCode(rank + 49);
-    }
-
-    private static getSquareString (square: Square): string {
-        return Board.getFileString(Board.getFile(square)) + Board.getRankString(Board.getRank(square));
-    }
-
-    private static getFileFromString (str: string): File {
-        return str.charCodeAt(0) - 97;
-    }
-
-    private static getRankFromString (str: string): Rank {
-        return str.charCodeAt(0) - 49;
-    }
-
-    private static getSquareFromString (str: string): Square {
-        return Board.getSquare(Board.getFileFromString(str[0]), Board.getRankFromString(str[1]));
-    }
-
-    private static getFigureString (figure: Figure) {
-        let str: string;
-        switch (figure) {
-            case Figure.KING: str = 'K'; break;
-            case Figure.QUEEN: str = 'Q'; break;
-            case Figure.ROOK: str = 'R'; break;
-            case Figure.BISHOP: str = 'B'; break;
-            case Figure.KNIGHT: str = 'N'; break;
-            case Figure.PAWN: str = 'P'; break;
-        }
-        return str;
-    }
-
-    private static getFile (square: Square): File {
-        return square & 7;
-    }
-
-    private static getRank (square: Square): Rank {
-        return square >> 3;
-    }
-
-    private static getPiece (side: Side, figure: Figure) {
-        return (side * 6) + figure;
-    }
-
-    private static getFigure (piece: Piece): Figure {
-        return piece % 6;
-    }
-
-    private static getSide (piece: Piece): Side {
-        return piece <= 5 ? Side.WHITE : Side.BLACK;
-    }
-
-    private static getOppositeSide (side: Side) {
-        return side ^= 1;
-    }
-
-    private static getOffsetSquare(square: Square, fileOffset: number, rankOffset: number): Square {
-        return Board.SQUARE_MAP[Board.SQUARE_MAP_OFFSETS[square] + (rankOffset * 10) + fileOffset];
     }
 }
