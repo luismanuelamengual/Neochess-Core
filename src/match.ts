@@ -31,4 +31,38 @@ export class Match {
         }
         return moves;
     }
+
+    public isMoveLegal(move: Move|string): boolean {
+        return this.getLegalMove(move) != null;
+    }
+
+    public makeMove(move: Move|string): boolean {
+        const legalMove = this.getLegalMove(move);
+        if (legalMove != null) {
+            const board = this.board.clone();
+            this.board.makeMove(legalMove);
+            this.historySlots.push(new HistorySlot(board, legalMove));
+        }
+        return legalMove != null;
+    }
+
+    private getLegalMove(move: Move|string): Move {
+        let legalMove: Move = null;
+        const moves = this.board.getLegalMoves();
+        for (const testMove of moves) {
+            if (move instanceof Move) {
+                if (testMove.equals(move)) {
+                    legalMove = testMove;
+                    break;
+                }
+            } else {
+                const testMoveSAN = this.board.getSAN(testMove);
+                if (testMoveSAN == move) {
+                    legalMove = testMove;
+                    break;
+                }
+            }
+        }
+        return legalMove;
+    }
 }
