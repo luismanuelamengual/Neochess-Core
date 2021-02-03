@@ -820,8 +820,27 @@ export class Board {
         return this.halfMoveCounter >= 50;
     }
 
+    public isDrawByInsufficientMaterial(): boolean {
+        const hasMinorPiece = [ false, false ];
+        for (let square = Square.A1; square <= Square.H8; square++) {
+            const piece = this.getPiece(square);
+            if (piece) {
+                const side = Board.getSide(piece);
+                const figure = Board.getFigure(piece);
+                if (figure != Figure.KING) {
+                    if ((figure != Figure.KNIGHT && figure != Figure.BISHOP) || hasMinorPiece[side]) {
+                        return false;
+                    } else {
+                        hasMinorPiece[side] = true;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public isDraw(): boolean {
-        return this.isStaleMate() || this.isDrawByFiftyMoveRule();
+        return this.isStaleMate() || this.isDrawByFiftyMoveRule() || this.isDrawByInsufficientMaterial();
     }
 
     public static getSquare(file: File, rank: Rank): Square {
