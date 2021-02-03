@@ -16,6 +16,10 @@ export class Match {
         return ply ? this.historySlots[ply]?.getBoard() : this.board;
     }
 
+    public getFEN(ply?: number): string {
+        return ply ? this.historySlots[ply]?.getBoard().getFEN() : this.board.getFEN();
+    }
+
     public getMove(ply: number) {
         return this.historySlots[ply]?.getMove();
     }
@@ -56,6 +60,17 @@ export class Match {
             moveUnmade = true;
         }
         return moveUnmade;
+    }
+
+    public makeMoves(moves: Array<Move|string>) {
+        let movesMade = true;
+        for (const move of moves) {
+            if (!this.makeMove(move)) {
+                movesMade = false;
+                break;
+            }
+        }
+        return movesMade;
     }
 
     private getLegalMove(move: Move|string): Move {
