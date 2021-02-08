@@ -517,7 +517,7 @@ export class Board {
         return this.isSquareAttacked(this.getKingSquare(side), BoardUtils.getOppositeSide(side));
     }
 
-    public getLegalMoves (): Array<Move > {
+    public getLegalMoves (generateSAN = false): Array<Move > {
         let moves: Array<Move> = [];
         const oppositeSide = BoardUtils.getOppositeSide(this.sideToMove);
         for (let testSquare = Square.A1; testSquare <= Square.H8; testSquare++) {
@@ -692,6 +692,9 @@ export class Board {
             board.makeMove(move);
             return !board.isKingSquareAttacked(currentSideToMove);
         });
+        if (generateSAN) {
+            moves.forEach(move => move.setSAN(this.getSAN(move)));
+        }
         return moves;
     }
 

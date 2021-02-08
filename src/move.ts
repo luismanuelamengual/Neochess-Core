@@ -6,6 +6,7 @@ export class Move {
     private fromSquare: Square;
     private toSquare: Square;
     private promotionFigure: Figure;
+    private san: string;
 
     constructor(fromSquare: Square, toSquare: Square, promotionFigure?: Figure) {
         this.fromSquare = fromSquare;
@@ -23,6 +24,15 @@ export class Move {
 
     public getPromotionFigure(): Figure {
         return this.promotionFigure;
+    }
+
+    public getSAN(): string {
+        return this.san;
+    }
+
+    public setSAN(san: string): Move {
+        this.san = san;
+        return this;
     }
 
     public equals(move: Move): boolean {
