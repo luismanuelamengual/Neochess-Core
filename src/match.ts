@@ -101,7 +101,7 @@ export class Match {
         return moves;
     }
 
-    public setMoveLine(moves: Array<Move|string>) {
+    public setMoveLine(moves: Array<Move|string>): boolean {
         let movesMade = true;
         this.node = new MatchNode(new Board());
         for (const move of moves) {
