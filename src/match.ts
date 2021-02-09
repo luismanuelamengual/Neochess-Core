@@ -12,17 +12,21 @@ export class Match {
     constructor(node: MatchNode);
     constructor(board: Board);
     constructor(fen: string);
-    constructor(arg?: MatchNode|Board|string) {
-        this.pgnTags = new Map<Pgn, string>();
-        if (!arg) {
+    constructor(node: MatchNode, tags: Map<Pgn, string>);
+    constructor(node?: MatchNode|Board|string, tags?: Map<Pgn, string>) {
+        if (!node) {
             this.node = new MatchNode(new Board());
         } else {
-            if (arg instanceof MatchNode) {
-                this.node = arg;
+            if (node instanceof MatchNode) {
+                this.node = node;
             } else {
-                this.node = new MatchNode(new Board(arg));
+                this.node = new MatchNode(new Board(node));
             }
         }
+        if (!tags) {
+            tags = new Map<Pgn, string>();
+        }
+        this.pgnTags = tags;
     }
 
     public startNew(board?: Board|string) {
@@ -30,9 +34,7 @@ export class Match {
     }
 
     public getMatch(ply: number): Match {
-        const match = new Match(this.node.getNode(ply));
-        match.pgnTags = this.pgnTags;
-        return match;
+        return new Match(this.node.getNode(ply), this.pgnTags);
     }
 
     public getMovesCount(): number {
