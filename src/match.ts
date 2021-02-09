@@ -2,6 +2,7 @@ import {Board} from "./board";
 import {Move} from "./move";
 import {MatchNode} from "./match-node";
 import {Pgn} from "./pgn";
+import {Side} from "./side";
 
 export class Match {
 
@@ -48,7 +49,7 @@ export class Match {
         this.node = new MatchNode(new Board(board));
     }
 
-    public getMatch(ply: number): Match {
+    public getMatchAt(ply: number): Match {
         return new Match(this.node.getNode(ply), this.pgnTags);
     }
 
@@ -161,5 +162,51 @@ export class Match {
     public deleteComment(): Match {
         this.node.deleteComment();
         return this;
+    }
+
+    public isStaleMate(): boolean {
+        return this.node.getBoard().isStaleMate();
+    }
+
+    public isDrawByFiftyMoveRule(): boolean {
+        return this.node.getBoard().isDrawByFiftyMoveRule();
+    }
+
+    public isDrawByInsufficientMaterial(): boolean {
+        return this.node.getBoard().isDrawByInsufficientMaterial();
+    }
+
+    public isDrawByRepetition(): boolean {
+        let isDrawByRepetition = false;
+        let repetitionsCount = 0;
+        const currentBoard = this.node.getBoard();
+        let boardsToCheck = currentBoard.getHalfMoveCounter();
+        let testNode = this.node.getParentNode();
+        while (testNode && boardsToCheck > 0) {
+            if (testNode.getBoard().equals(currentBoard)) {
+                repetitionsCount++;
+                if (repetitionsCount >= 2) {
+                    isDrawByRepetition = true;
+                    break;
+                }
+            }
+            testNode = testNode.getParentNode();
+            boardsToCheck--;
+        }
+        return isDrawByRepetition;
+    }
+
+    public isDraw(): boolean {
+        return this.isStaleMate() || this.isDrawByFiftyMoveRule() || this.isDrawByInsufficientMaterial() || this.isDrawByRepetition();
+    }
+
+    public isWhiteWin(): boolean {
+        const board = this.getBoard();
+        return board.getSideToMove() == Side.BLACK && board.isCheckMate();
+    }
+
+    public isBlackWin(): boolean {
+        const board = this.getBoard();
+        return board.getSideToMove() == Side.WHITE && board.isCheckMate();
     }
 }
