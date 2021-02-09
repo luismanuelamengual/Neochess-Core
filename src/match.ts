@@ -135,20 +135,6 @@ export class Match {
         return movesMade;
     }
 
-    public setPGNTag(pgn: Pgn, value: string): Match {
-        this.pgnTags.set(pgn, value);
-        return this;
-    }
-
-    public removePGNTag(pgn: Pgn): Match {
-        this.pgnTags.delete(pgn);
-        return this;
-    }
-
-    public getPGNTag(pgn: Pgn): string {
-        return this.pgnTags.get(pgn);
-    }
-
     public setComment(comment: string): Match {
         this.node.setComment(comment);
         return this;
@@ -207,5 +193,44 @@ export class Match {
     public isBlackWin(): boolean {
         const board = this.getBoard();
         return board.getSideToMove() == Side.WHITE && board.isCheckMate();
+    }
+
+    public setPGNTag(pgn: Pgn, value: string): Match {
+        this.pgnTags.set(pgn, value);
+        return this;
+    }
+
+    public removePGNTag(pgn: Pgn): Match {
+        this.pgnTags.delete(pgn);
+        return this;
+    }
+
+    public getPGNTag(pgn: Pgn): string {
+        return this.pgnTags.get(pgn);
+    }
+
+    public getPGN(): string {
+        let result = this.pgnTags.get(Pgn.RESULT);
+        if (!result) {
+            if (this.isWhiteWin()) {
+                result = '1-0';
+            } else if (this.isBlackWin()) {
+                result = '0-1';
+            } else if (this.isDraw()) {
+                result = '1/2-1/2'
+            } else {
+                result = '*';
+            }
+        }
+        let pgn = '';
+        for (const pgnTag of this.pgnTags.keys()) {
+            const pgnValue = this.pgnTags.get(pgnTag);
+            pgn += `[${pgnTag} "${pgnValue}"]\n`;
+        }
+        if (!this.pgnTags.has(Pgn.RESULT)) {
+            pgn += `[${Pgn.RESULT} "${result}"]\n`;
+        }
+        pgn += '\n';
+        return pgn;
     }
 }
