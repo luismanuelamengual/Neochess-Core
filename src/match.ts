@@ -5,8 +5,8 @@ import {Pgn} from "./pgn";
 
 export class Match {
 
-    private pgnTags: Map<Pgn, string>;
     private node: MatchNode;
+    private pgnTags: Map<Pgn, string>;
 
     constructor();
     constructor(node: MatchNode);
@@ -15,14 +15,13 @@ export class Match {
     constructor(node: MatchNode, tags: Map<Pgn, string>);
     constructor(node?: MatchNode|Board|string, tags?: Map<Pgn, string>) {
         if (!node) {
-            this.node = new MatchNode(new Board());
-        } else {
-            if (node instanceof MatchNode) {
-                this.node = node;
-            } else {
-                this.node = new MatchNode(new Board(node));
-            }
+            node = new MatchNode(new Board());
+        } else if (node instanceof Board) {
+            node = new MatchNode(node);
+        } else if (!(node instanceof MatchNode)) {
+            node = new MatchNode(new Board(node));
         }
+        this.node = node;
         if (!tags) {
             tags = new Map<Pgn, string>();
         }
