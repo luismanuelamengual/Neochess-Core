@@ -1,9 +1,11 @@
 import {Board} from "./board";
 import {Move} from "./move";
 import {MatchNode} from "./match-node";
+import {Pgn} from "./pgn";
 
 export class Match {
 
+    private pgnTags: Map<Pgn, string>;
     private node: MatchNode;
 
     constructor();
@@ -11,6 +13,7 @@ export class Match {
     constructor(board: Board);
     constructor(fen: string);
     constructor(arg?: MatchNode|Board|string) {
+        this.pgnTags = new Map<Pgn, string>();
         if (!arg) {
             this.node = new MatchNode(new Board());
         } else {
@@ -27,7 +30,9 @@ export class Match {
     }
 
     public getMatch(ply: number): Match {
-        return new Match(this.node.getNode(ply));
+        const match = new Match(this.node.getNode(ply));
+        match.pgnTags = this.pgnTags;
+        return match;
     }
 
     public getMovesCount(): number {
@@ -111,6 +116,20 @@ export class Match {
             }
         }
         return movesMade;
+    }
+
+    public setPGNTag(pgn: Pgn, value: string): Match {
+        this.pgnTags.set(pgn, value);
+        return this;
+    }
+
+    public removePGNTag(pgn: Pgn): Match {
+        this.pgnTags.delete(pgn);
+        return this;
+    }
+
+    public getPGNTag(pgn: Pgn): string {
+        return this.pgnTags.get(pgn);
     }
 
     public setComment(comment: string): Match {
