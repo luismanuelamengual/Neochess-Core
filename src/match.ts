@@ -22,6 +22,10 @@ export class Match {
         }
     }
 
+    public startNew(board?: Board|string) {
+        this.node = new MatchNode(new Board(board));
+    }
+
     public getMatch(ply: number): Match {
         return new Match(this.node.getNode(ply));
     }
