@@ -40,7 +40,6 @@ export class Match {
             tags.set(Pgn.ROUND, '-');
             tags.set(Pgn.WHITE, '?');
             tags.set(Pgn.BLACK, '?');
-            tags.set(Pgn.RESULT, '*');
         }
         this.pgnTags = tags;
     }
