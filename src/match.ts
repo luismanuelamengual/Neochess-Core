@@ -245,6 +245,8 @@ export class Match {
         let pgn = '';
         let onMainLine = true;
         const moves = node.getMoves();
+        let mainChildNode: MatchNode = null;
+        let addMainChildNodeMoveCounterHeader = false;
         for (const move of moves) {
             const childNode = node.getChildNode(move);
             if (!onMainLine) {
@@ -260,18 +262,28 @@ export class Match {
             }
             pgn += move.getSAN();
             pgn += ' ';
-            const comment = childNode.getComment();
             let addChildNodeMoveCounterHeader = false;
+            const comment = childNode.getComment();
             if (comment) {
                 pgn += '{' + comment + '}';
-                addChildNodeMoveCounterHeader = true;
                 pgn += ' ';
+                if (onMainLine) {
+                    addMainChildNodeMoveCounterHeader = true;
+                } else {
+                    addChildNodeMoveCounterHeader = true;
+                }
             }
-            pgn += this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
-            if (!onMainLine) {
+            if (onMainLine) {
+                mainChildNode = childNode;
+            } else {
+                pgn += this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
                 pgn += ') ';
+                addMainChildNodeMoveCounterHeader = true;
             }
             onMainLine = false;
+        }
+        if (mainChildNode) {
+            pgn += this.getPGNMoveList(mainChildNode, addMainChildNodeMoveCounterHeader);
         }
         return pgn;
     }
