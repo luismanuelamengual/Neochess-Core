@@ -276,7 +276,8 @@ export class Match {
             if (onMainLine) {
                 mainChildNode = childNode;
             } else {
-                pgn += this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
+                let variationMoveLine = this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
+                pgn += variationMoveLine.substring(0, variationMoveLine.length-1);
                 pgn += ') ';
                 addMainChildNodeMoveCounterHeader = true;
             }

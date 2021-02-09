@@ -32,16 +32,10 @@ describe("Match tests", () => {
         match.makeMove('d6');
         match.setComment('APA !! aca me deje mate en 1');
         match.makeMove('Qxf7#');
-
         const variationMatch = match.getMatchAt(2);
         variationMatch.makeMove('Nf3');
         variationMatch.makeMove('Bb4');
         variationMatch.makeMove('c3');
-
-        console.log(match.getPGN());
-
-        // 1. e4 e5 2. Bc4 Nc6 3. Qh5 g6 4. Qf3 d6 5. Qxf7# *
-
-
+        expect(match.getPGN()).toBeTruthy();
     });
 });
