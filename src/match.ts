@@ -231,6 +231,44 @@ export class Match {
             pgn += `[${Pgn.RESULT} "${result}"]\n`;
         }
         pgn += '\n';
+        pgn += this.getPGNMoveList(this.node.getRootNode());
+        pgn += result;
+        return pgn;
+    }
+
+    private getPGNMoveList(node: MatchNode, addMoveCounterHeader = true): string {
+        const board = node.getBoard();
+        let pgn = '';
+        let onMainLine = true;
+        const moves = node.getMoves();
+        for (const move of moves) {
+            const childNode = node.getChildNode(move);
+            if (!onMainLine) {
+                pgn += '(';
+            }
+            if (!onMainLine || board.getSideToMove() == Side.WHITE || addMoveCounterHeader) {
+                pgn += Math.floor(board.getMoveCounter()/2) + 1;
+                pgn += '.';
+                if (board.getSideToMove() == Side.BLACK) {
+                    pgn += '..';
+                }
+                pgn += ' ';
+            }
+            pgn += move.getSAN();
+            pgn += ' ';
+            const comment = childNode.getComment();
+            let addChildNodeMoveCounterHeader = false;
+            if (comment) {
+                pgn += '{' + comment + '}';
+                addChildNodeMoveCounterHeader = true;
+            }
+            pgn += ' ';
+            pgn += this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
+            if (!onMainLine) {
+                pgn += ') ';
+            }
+            onMainLine = false;
+        }
         return pgn;
     }
 }

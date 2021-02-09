@@ -21,6 +21,14 @@ export class MatchNode {
         return this.parentNode;
     }
 
+    public getRootNode(): MatchNode {
+        let node: MatchNode = this;
+        while (node.parentNode) {
+            node = node.parentNode;
+        }
+        return node;
+    }
+
     public getNode(ply: number): MatchNode {
         let node: MatchNode;
         let testNode: MatchNode = this;
@@ -49,6 +57,10 @@ export class MatchNode {
             }
         }
         return childRemoved;
+    }
+
+    public getChildNode(move: Move): MatchNode {
+        return this.childNodes.get(move);
     }
 
     public getMoves(): IterableIterator<Move> {
