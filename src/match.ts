@@ -113,6 +113,17 @@ export class Match {
         return moveUnmade;
     }
 
+    public makeMoves(moves: Array<Move|string>): boolean {
+        let movesMade = true;
+        for (const move of moves) {
+            if (!this.makeMove(move)) {
+                movesMade = false;
+                break;
+            }
+        }
+        return movesMade;
+    }
+
     public getMoveLine(): Array<Move> {
         const moves: Array<Move> = [];
         let currentMatchNode: MatchNode = this.node;
@@ -124,15 +135,8 @@ export class Match {
     }
 
     public setMoveLine(moves: Array<Move|string>): boolean {
-        let movesMade = true;
         this.node = new MatchNode(new Board());
-        for (const move of moves) {
-            if (!this.makeMove(move)) {
-                movesMade = false;
-                break;
-            }
-        }
-        return movesMade;
+        return this.makeMoves(moves);
     }
 
     public setComment(comment: string): Match {
@@ -261,8 +265,8 @@ export class Match {
             if (comment) {
                 pgn += '{' + comment + '}';
                 addChildNodeMoveCounterHeader = true;
+                pgn += ' ';
             }
-            pgn += ' ';
             pgn += this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
             if (!onMainLine) {
                 pgn += ') ';
