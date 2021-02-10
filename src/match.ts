@@ -15,12 +15,15 @@ export class Match {
     constructor(fen: string);
     constructor(node: MatchNode, tags: Map<Pgn, string>);
     constructor(node?: MatchNode|Board|string, tags?: Map<Pgn, string>) {
+        let setUp = false;
         if (!node) {
             node = new MatchNode(new Board());
         } else if (node instanceof Board) {
             node = new MatchNode(node);
+            setUp = true;
         } else if (!(node instanceof MatchNode)) {
             node = new MatchNode(new Board(node));
+            setUp = true;
         }
         this.node = node;
         if (!tags) {
@@ -40,6 +43,10 @@ export class Match {
             tags.set(Pgn.ROUND, '-');
             tags.set(Pgn.WHITE, '?');
             tags.set(Pgn.BLACK, '?');
+            if (setUp) {
+                tags.set(Pgn.SET_UP, '1');
+                tags.set(Pgn.FEN, this.node.getBoard().getFEN());
+            }
         }
         this.pgnTags = tags;
     }
