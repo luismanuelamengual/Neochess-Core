@@ -35,7 +35,10 @@ describe("Match tests", () => {
         const variationMatch = match.getMatchAt(2);
         variationMatch.makeMove('Nf3');
         variationMatch.makeMove('Bb4');
+        variationMatch.setComment('Estoy en una variante');
         variationMatch.makeMove('c3');
-        expect(match.getPGN()).toBeTruthy();
+        let pgn = match.getPGN();
+        let pgnParts = pgn.split('\n\n');
+        expect(pgnParts[1]).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Qxf7# 1-0');
     });
 });

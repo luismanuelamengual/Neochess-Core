@@ -258,7 +258,6 @@ export class Match {
                 if (board.getSideToMove() == Side.BLACK) {
                     pgn += '..';
                 }
-                pgn += ' ';
             }
             pgn += move.getSAN();
             pgn += ' ';
