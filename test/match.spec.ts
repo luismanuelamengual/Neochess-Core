@@ -20,6 +20,12 @@ describe("Match tests", () => {
     });
 
     test("PGN", () => {
+
+        const getPGNMoveList = (pgn: string) => {
+            let pgnParts = pgn.split('\n\n');
+            return pgnParts[1];
+        };
+
         const match = new Match();
         match.makeMove('e4');
         match.makeMove('e5');
@@ -39,21 +45,15 @@ describe("Match tests", () => {
         match.makeMove('a3');
         match.unmakeMove();
         match.makeMove('c3');
-        let pgn = match.getPGN();
-        let pgnParts = pgn.split('\n\n');
-        expect(pgnParts[1]).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Qxf7# 1-0');
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Qxf7# 1-0');
         match.makeMove('Ba5');
         match.goTo();
         match.unmakeMove();
         match.unmakeMove();
-        pgn = match.getPGN();
-        pgnParts = pgn.split('\n\n');
-        expect(pgnParts[1]).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 *');
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 *');
         match.makeMove('Qf6');
         match.makeMove('Qxf6');
         match.makeMove('Nxf6');
-        pgn = match.getPGN();
-        pgnParts = pgn.split('\n\n');
-        expect(pgnParts[1]).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 Qf6 5.Qxf6 Nxf6 *');
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 Qf6 5.Qxf6 Nxf6 *');
     });
 });
