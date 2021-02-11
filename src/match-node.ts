@@ -29,6 +29,14 @@ export class MatchNode {
         return node;
     }
 
+    public getMainNode(): MatchNode {
+        let node: MatchNode = this.getRootNode();
+        while (node.childNodes.size > 0) {
+            node = node.childNodes.values().next().value;
+        }
+        return node;
+    }
+
     public getNode(ply: number): MatchNode {
         let node: MatchNode;
         let testNode: MatchNode = this;

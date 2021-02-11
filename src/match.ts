@@ -10,21 +10,12 @@ export class Match {
     private pgnTags: Map<Pgn, string>;
 
     constructor();
-    constructor(node: MatchNode);
     constructor(board: Board);
     constructor(fen: string);
-    constructor(node: MatchNode, tags: Map<Pgn, string>);
-    constructor(node?: MatchNode|Board|string, tags?: Map<Pgn, string>) {
-        if (node) {
-            if (node instanceof MatchNode) {
-                this.node = node;
-                this.pgnTags = tags;
-            } else {
-                this.startNew(node);
-            }
-        } else {
-            this.startNew();
-        }
+    constructor(board: Board, tags: Map<Pgn, string>);
+    constructor(fen: string, tags: Map<Pgn, string>);
+    constructor(board?: Board|string, tags?: Map<Pgn, string>) {
+        this.startNew(board, tags);
     }
 
     public startNew(board?: Board|string, tags?: Map<Pgn, string>) {
@@ -65,11 +56,12 @@ export class Match {
         this.pgnTags = tags;
     }
 
-    public getMatchAt(ply: number): Match {
-        return new Match(this.node.getNode(ply), this.pgnTags);
+    public goTo(ply?: number): Match {
+        this.node = ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode();
+        return this;
     }
 
-    public getMovesCount(): number {
+    public getPly(): number {
         return this.node.getBoard().getMoveCounter();
     }
 
@@ -231,6 +223,8 @@ export class Match {
     }
 
     public getPGN(): string {
+        let backupNode = this.node;
+        this.node = this.node.getMainNode();
         let result = this.pgnTags.get(Pgn.RESULT);
         if (!result) {
             if (this.isWhiteWin()) {
@@ -254,6 +248,7 @@ export class Match {
         pgn += '\n';
         pgn += this.getPGNMoveList(this.node.getRootNode());
         pgn += result;
+        this.node = backupNode;
         return pgn;
     }
 
