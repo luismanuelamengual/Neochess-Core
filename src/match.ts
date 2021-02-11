@@ -15,14 +15,28 @@ export class Match {
     constructor(fen: string);
     constructor(node: MatchNode, tags: Map<Pgn, string>);
     constructor(node?: MatchNode|Board|string, tags?: Map<Pgn, string>) {
+        if (node) {
+            if (node instanceof MatchNode) {
+                this.node = node;
+                this.pgnTags = tags;
+            } else {
+                this.startNew(node);
+            }
+        } else {
+            this.startNew();
+        }
+    }
+
+    public startNew(board?: Board|string, tags?: Map<Pgn, string>) {
         let setUp = false;
-        if (!node) {
+        let node: MatchNode;
+        if (!board) {
             node = new MatchNode(new Board());
-        } else if (node instanceof Board) {
-            node = new MatchNode(node);
+        } else if (board instanceof Board) {
+            node = new MatchNode(board);
             setUp = true;
-        } else if (!(node instanceof MatchNode)) {
-            node = new MatchNode(new Board(node));
+        } else {
+            node = new MatchNode(new Board(board));
             setUp = true;
         }
         this.node = node;
@@ -49,10 +63,6 @@ export class Match {
             }
         }
         this.pgnTags = tags;
-    }
-
-    public startNew(board?: Board|string) {
-        this.node = new MatchNode(new Board(board));
     }
 
     public getMatchAt(ply: number): Match {
