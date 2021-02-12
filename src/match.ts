@@ -3,6 +3,7 @@ import {Move} from "./move";
 import {MatchNode} from "./match-node";
 import {Pgn} from "./pgn";
 import {Side} from "./side";
+import {Square} from "./square";
 
 export class Match {
 
@@ -222,7 +223,14 @@ export class Match {
         let boardsToCheck = currentBoard.getHalfMoveCounter();
         let testNode = this.node.getParentNode();
         while (testNode && boardsToCheck > 0) {
-            if (testNode.getBoard().equals(currentBoard)) {
+            let areEquals = true;
+            for (let square = Square.A1; square <= Square.H8; square++) {
+                if (testNode.getBoard().getPiece(square) != currentBoard.getPiece(square)) {
+                    areEquals = false;
+                    break;
+                }
+            }
+            if (areEquals) {
                 repetitionsCount++;
                 if (repetitionsCount >= 2) {
                     isDrawByRepetition = true;
