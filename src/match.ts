@@ -7,7 +7,7 @@ import {Side} from "./side";
 export class Match {
 
     private node: MatchNode;
-    private pgnTags: Map<Pgn, string>;
+    private tags: Map<Pgn, string>;
 
     constructor();
     constructor(board: Board);
@@ -53,7 +53,7 @@ export class Match {
                 tags.set(Pgn.FEN, this.node.getBoard().getFEN());
             }
         }
-        this.pgnTags = tags;
+        this.tags = tags;
     }
 
     public goTo(ply?: number): Match {
@@ -209,23 +209,23 @@ export class Match {
     }
 
     public setPGNTag(pgn: Pgn, value: string): Match {
-        this.pgnTags.set(pgn, value);
+        this.tags.set(pgn, value);
         return this;
     }
 
     public removePGNTag(pgn: Pgn): Match {
-        this.pgnTags.delete(pgn);
+        this.tags.delete(pgn);
         return this;
     }
 
     public getPGNTag(pgn: Pgn): string {
-        return this.pgnTags.get(pgn);
+        return this.tags.get(pgn);
     }
 
     public getPGN(): string {
         let backupNode = this.node;
         this.node = this.node.getMainNode();
-        let result = this.pgnTags.get(Pgn.RESULT);
+        let result = this.tags.get(Pgn.RESULT);
         if (!result) {
             if (this.isWhiteWin()) {
                 result = '1-0';
@@ -238,11 +238,11 @@ export class Match {
             }
         }
         let pgn = '';
-        for (const pgnTag of this.pgnTags.keys()) {
-            const pgnValue = this.pgnTags.get(pgnTag);
+        for (const pgnTag of this.tags.keys()) {
+            const pgnValue = this.tags.get(pgnTag);
             pgn += `[${pgnTag} "${pgnValue}"]\n`;
         }
-        if (!this.pgnTags.has(Pgn.RESULT)) {
+        if (!this.tags.has(Pgn.RESULT)) {
             pgn += `[${Pgn.RESULT} "${result}"]\n`;
         }
         pgn += '\n';
