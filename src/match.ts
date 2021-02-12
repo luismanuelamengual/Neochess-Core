@@ -221,24 +221,26 @@ export class Match {
         let repetitionsCount = 0;
         const currentBoard = this.node.getBoard();
         let boardsToCheck = currentBoard.getHalfMoveCounter();
-        let testNode = this.node.getParentNode();
-        while (testNode && boardsToCheck > 0) {
-            let areEquals = true;
-            for (let square = Square.A1; square <= Square.H8; square++) {
-                if (testNode.getBoard().getPiece(square) != currentBoard.getPiece(square)) {
-                    areEquals = false;
-                    break;
+        if (boardsToCheck > 7) {
+            let testNode = this.node.getParentNode();
+            while (testNode && boardsToCheck > 0) {
+                let areEquals = true;
+                for (let square = Square.A1; square <= Square.H8; square++) {
+                    if (testNode.getBoard().getPiece(square) != currentBoard.getPiece(square)) {
+                        areEquals = false;
+                        break;
+                    }
                 }
-            }
-            if (areEquals) {
-                repetitionsCount++;
-                if (repetitionsCount >= 2) {
-                    isDrawByRepetition = true;
-                    break;
+                if (areEquals) {
+                    repetitionsCount++;
+                    if (repetitionsCount >= 2) {
+                        isDrawByRepetition = true;
+                        break;
+                    }
                 }
+                testNode = testNode.getParentNode();
+                boardsToCheck--;
             }
-            testNode = testNode.getParentNode();
-            boardsToCheck--;
         }
         return isDrawByRepetition;
     }
