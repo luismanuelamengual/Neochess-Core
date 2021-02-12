@@ -67,5 +67,7 @@ describe("Match tests", () => {
         match.makeMove('exd4');
         match.makeMove('Bg5');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 (3...Qf6 4.d4 exd4 5.Bg5) 4.Qf3 Qf6 5.Qxf6 Nxf6 *');
+        match.promotePly();
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 4.Qf3 Qf6 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 *');
     });
 });

@@ -79,6 +79,20 @@ export class MatchNode {
         return Array.from(this.childNodes.keys());
     }
 
+    public promote(): MatchNode {
+        let node: MatchNode = this;
+        while (node.parentNode) {
+            if (node.parentNode.childNodes.size > 1) {
+                const childNodes = Array.from(node.parentNode.childNodes.values());
+                if (childNodes.indexOf(node) > 0) {
+                    node.parentNode.childNodes = new Map<Move, MatchNode>([...node.parentNode.childNodes.entries()].sort((a, b) => a[1] == node ? -1 : (b[1] == node) ? 1 : 0));
+                }
+            }
+            node = node.parentNode;
+        }
+        return this;
+    }
+
     public getMove(childNode: MatchNode): Move {
         let move: Move = null;
         for (const testMove of this.childNodes.keys()) {

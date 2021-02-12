@@ -101,6 +101,11 @@ export class Match {
         return this.node.getMoves();
     }
 
+    public promotePly(): Match {
+        this.node.promote();
+        return this;
+    }
+
     public getBoard(ply?: number): Board {
         return ply >= 0 ? this.node.getNode(ply)?.getBoard() : this.node.getBoard();
     }
