@@ -71,8 +71,12 @@ export class MatchNode {
         return this.childNodes.get(move);
     }
 
-    public getMoves(): IterableIterator<Move> {
-        return this.childNodes.keys();
+    public getChildNodes(): Array<MatchNode> {
+        return Array.from(this.childNodes.values());
+    }
+
+    public getMoves(): Array<Move> {
+        return Array.from(this.childNodes.keys());
     }
 
     public getMove(childNode: MatchNode): Move {

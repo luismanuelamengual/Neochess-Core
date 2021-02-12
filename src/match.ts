@@ -56,13 +56,49 @@ export class Match {
         this.tags = tags;
     }
 
-    public goTo(ply?: number): Match {
+    public goToPly(ply?: number): Match {
         this.node = ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode();
+        return this;
+    }
+
+    public goToRootPly(): Match {
+        this.node = this.node.getRootNode();
+        return this;
+    }
+
+    public goToMainPly(): Match {
+        this.node = this.node.getMainNode();
+        return this;
+    }
+
+    public goToPreviousPly(): Match {
+        if (this.node.getParentNode()) {
+            this.node = this.node.getParentNode();
+        }
+        return this;
+    }
+
+    public goToNextPly(variationMove?: Move): Match {
+        if (!variationMove) {
+            const childNodes = this.node.getChildNodes();
+            if (childNodes.length > 0) {
+                this.node = childNodes[0];
+            }
+        } else {
+            const variationMoves = this.node.getMoves();
+            if (variationMoves.includes(variationMove)) {
+                this.node = this.node.getChildNode(variationMove);
+            }
+        }
         return this;
     }
 
     public getPly(): number {
         return this.node.getBoard().getMoveCounter();
+    }
+
+    public getVariationMoves(): Array<Move> {
+        return this.node.getMoves();
     }
 
     public getBoard(ply?: number): Board {
