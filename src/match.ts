@@ -4,6 +4,7 @@ import {MatchNode} from "./match-node";
 import {Pgn} from "./pgn";
 import {Side} from "./side";
 import {Square} from "./square";
+import {Annotation} from "./annotation";
 
 export class Match {
 
@@ -204,6 +205,20 @@ export class Match {
         return this;
     }
 
+    public addAnnotation(annotation: Annotation): Match {
+        this.node.addAnnotation(annotation);
+        return this;
+    }
+
+    public clearAnnotations(): Match {
+        this.node.clearAnnotations();
+        return this;
+    }
+
+    public getAnnotations(): Array<Annotation> {
+        return this.node.getAnnotations();
+    }
+
     public isStaleMate(): boolean {
         return this.node.getBoard().isStaleMate();
     }
@@ -333,6 +348,12 @@ export class Match {
                     addMainChildNodeMoveCounterHeader = true;
                 } else {
                     addChildNodeMoveCounterHeader = true;
+                }
+            }
+            const annotations = childNode.getAnnotations();
+            if (annotations) {
+                for (const annotation of annotations) {
+                    pgn += '$' + annotation + ' ';
                 }
             }
             if (onMainLine) {

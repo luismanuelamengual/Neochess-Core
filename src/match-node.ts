@@ -1,5 +1,6 @@
 import {Board} from "./board";
 import {Move} from "./move";
+import {Annotation} from "./annotation";
 
 export class MatchNode {
 
@@ -7,10 +8,12 @@ export class MatchNode {
     private childNodes: Map<Move, MatchNode>;
     private board: Board;
     private comment: string;
+    private annotations: Array<Annotation>;
 
     constructor(board: Board) {
         this.board = board;
         this.childNodes = new Map<Move, MatchNode>();
+        this.annotations = [];
     }
 
     public getBoard(): Board {
@@ -116,5 +119,19 @@ export class MatchNode {
     public deleteComment(): MatchNode {
         this.comment = null;
         return this;
+    }
+
+    public addAnnotation(annotation: Annotation): MatchNode {
+        this.annotations.push(annotation);
+        return this;
+    }
+
+    public clearAnnotations(): MatchNode {
+        this.annotations = [];
+        return this;
+    }
+
+    public getAnnotations(): Array<Annotation> {
+        return this.annotations;
     }
 }
