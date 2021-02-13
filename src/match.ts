@@ -144,11 +144,24 @@ export class Match {
         let moveMade = false;
         const legalMove = this.getLegalMove(move);
         if (legalMove != null) {
-            const board = this.node.getBoard().clone();
-            board.makeMove(legalMove);
-            const newNode = new MatchNode(board);
-            this.node.addChild(legalMove, newNode);
-            this.node = newNode;
+            const variationMoves = this.getVariationMoves();
+            let inVariationMove = false;
+            if (variationMoves) {
+                for (const variationMove of variationMoves) {
+                    if (variationMove.getSAN() == legalMove.getSAN()) {
+                        this.node = this.node.getChildNode(variationMove);
+                        inVariationMove = true;
+                        break;
+                    }
+                }
+            }
+            if (!inVariationMove) {
+                const board = this.node.getBoard().clone();
+                board.makeMove(legalMove);
+                const newNode = new MatchNode(board);
+                this.node.addChild(legalMove, newNode);
+                this.node = newNode;
+            }
             moveMade = true;
         }
         return moveMade;
