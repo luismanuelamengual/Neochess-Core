@@ -5,6 +5,7 @@ import {Pgn} from "./pgn";
 import {Side} from "./side";
 import {Square} from "./square";
 import {Annotation} from "./annotation";
+import {Piece} from "./piece";
 
 export class Match {
 
@@ -106,12 +107,36 @@ export class Match {
         return this;
     }
 
-    public getBoard(ply?: number): Board {
-        return ply >= 0 ? this.node.getNode(ply)?.getBoard() : this.node.getBoard();
+    public getPiece(square: Square): Piece {
+        return this.node.getBoard().getPiece(square);
     }
 
-    public getFEN(ply?: number): string {
-        return this.getBoard(ply).getFEN();
+    public getFEN(): string {
+        return this.node.getBoard().getFEN();
+    }
+
+    public canWhiteKingSideCastle(): boolean {
+        return this.node.getBoard().canWhiteKingSideCastle();
+    }
+
+    public canWhiteQueenSideCastle(): boolean {
+        return this.node.getBoard().canWhiteQueenSideCastle();
+    }
+
+    public canBlackKingSideCastle(): boolean {
+        return this.node.getBoard().canBlackKingSideCastle();
+    }
+
+    public canBlackQueenSideCastle(): boolean {
+        return this.node.getBoard().canWhiteQueenSideCastle();
+    }
+
+    public getMoveCounter(): number {
+        return this.node.getBoard().getMoveCounter();
+    }
+
+    public getHalfMoveCounter(): number {
+        return this.node.getBoard().getHalfMoveCounter();
     }
 
     public getLegalMove(move: Move|string): Move {
@@ -132,6 +157,10 @@ export class Match {
             }
         }
         return legalMove;
+    }
+
+    public getLegalMoves (): Array<Move > {
+        return this.node.getBoard().getLegalMoves(true);
     }
 
     public isMoveLegal(move: Move|string): boolean {
@@ -276,12 +305,12 @@ export class Match {
     }
 
     public isWhiteWin(): boolean {
-        const board = this.getBoard();
+        const board = this.node.getBoard();
         return board.getSideToMove() == Side.BLACK && board.isCheckMate();
     }
 
     public isBlackWin(): boolean {
-        const board = this.getBoard();
+        const board = this.node.getBoard();
         return board.getSideToMove() == Side.WHITE && board.isCheckMate();
     }
 
