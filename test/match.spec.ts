@@ -85,5 +85,8 @@ describe("Match tests", () => {
         match.goToPreviousPly();
         match.makeMove('Qg6');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 Qg6 6.Qh3 Qd6 7.Qh5 Qg6 8.Qh3 Qd6 9.Qh5 Qg6 1/2-1/2');
+        const pgn = match.getPGN();
+        match.setPGN(pgn);
+        expect(match.getPGN()).toEqual(pgn);
     });
 });
