@@ -21,16 +21,13 @@ export class Match {
     }
 
     public startNew(board?: Board|string, tags?: Map<Pgn, string>) {
-        let setUp = false;
         let node: MatchNode;
         if (!board) {
             node = new MatchNode(new Board());
         } else if (board instanceof Board) {
             node = new MatchNode(board);
-            setUp = true;
         } else {
             node = new MatchNode(new Board(board));
-            setUp = true;
         }
         this.node = node;
         if (!tags) {
@@ -50,9 +47,10 @@ export class Match {
             tags.set(Pgn.ROUND, '-');
             tags.set(Pgn.WHITE, '?');
             tags.set(Pgn.BLACK, '?');
-            if (setUp) {
+            const boardFEN = this.node.getBoard().getFEN();
+            if (boardFEN != 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
                 tags.set(Pgn.SET_UP, '1');
-                tags.set(Pgn.FEN, this.node.getBoard().getFEN());
+                tags.set(Pgn.FEN, boardFEN);
             }
         }
         this.tags = tags;
@@ -332,34 +330,46 @@ export class Match {
     }
 
     public setPGN(pgn): Match {
-        this.tags = new Map<Pgn, string>();
-        const [pgnHeaders, pgnMoveText] = pgn.split('\n\n');
+        let tags: Map<Pgn, string> = null;
+        const pgnParts = pgn.split('\n\n');
+        let pgnHeaders: string;
+        let pgnMoveText: string;
+        if (pgnParts.length > 1) {
+            tags = new Map<Pgn, string>();
+            pgnHeaders = pgnParts[0];
+            pgnMoveText = pgnParts[1];
+        } else {
+            pgnHeaders = '';
+            pgnMoveText = pgnParts[0];
+        }
         const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*\]\s*$/;
         for (const pgnHeader of pgnHeaders.split('\n')) {
             const matchResult = pgnHeader.match(headerRegExp);
             if (matchResult) {
                 const [,pgnTag, pgnTagValue] = matchResult;
-                this.tags.set(pgnTag, pgnTagValue);
+                tags.set(pgnTag as Pgn, pgnTagValue);
             }
         }
-        if (this.tags.get(Pgn.SET_UP) == '1') {
-            this.node = new MatchNode(new Board(this.tags.get(Pgn.FEN)));
+        let board: Board;
+        if (tags && tags.get(Pgn.SET_UP) == '1') {
+            board = new Board(tags.get(Pgn.FEN));
         } else {
-            this.node = new MatchNode(new Board());
+            board = new Board();
         }
-
-        let moveText = pgnMoveText;
-        moveText = moveText.replace(/\d+\.(\.\.)?/g, '');
-        moveText = moveText.replace(/\.\.\./g, '');
-        moveText = moveText.replace(/\s\s+/g, ' ');
-        moveText = moveText.replace(/\s\s+/g, ' ');
-        moveText = moveText.replace(/{\s+/g, '{');
-        moveText = moveText.replace(/\s+}/g, '}');
-        moveText = moveText.replace(/\(\s+/g, '(');
-        moveText = moveText.replace(/\s+\)/g, ')');
-        moveText = moveText.trim();
-        moveText = moveText.substring(0, moveText.lastIndexOf(' '));
-        this.setPGNMoveList(this.node, moveText);
+        this.startNew(board, tags);
+        pgnMoveText = pgnMoveText.replace(/\d+\.(\.\.)?/g, '');
+        pgnMoveText = pgnMoveText.replace(/\.\.\./g, '');
+        pgnMoveText = pgnMoveText.replace(/\s\s+/g, ' ');
+        pgnMoveText = pgnMoveText.replace(/\s\s+/g, ' ');
+        pgnMoveText = pgnMoveText.replace(/{\s+/g, '{');
+        pgnMoveText = pgnMoveText.replace(/\s+}/g, '}');
+        pgnMoveText = pgnMoveText.replace(/\(\s+/g, '(');
+        pgnMoveText = pgnMoveText.replace(/\s+\)/g, ')');
+        pgnMoveText = pgnMoveText.trim();
+        if (pgnMoveText.endsWith(' *') || pgnMoveText.endsWith(' 1-0') || pgnMoveText.endsWith(' 0-1') || pgnMoveText.endsWith(' 1/2-1/2')) {
+            pgnMoveText = pgnMoveText.substring(0, pgnMoveText.lastIndexOf(' '));
+        }
+        this.setPGNMoveList(this.node, pgnMoveText);
         return this;
     }
 

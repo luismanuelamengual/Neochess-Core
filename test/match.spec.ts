@@ -90,5 +90,7 @@ describe("Match tests", () => {
         expect(match.getPGN()).toEqual(pgn);
         match.setPGN('[Event "Chessboard Editor at Apronus.com"]\n[Date "2021.02.14"]\n[Round "-"]\n[White "?"]\n[Black "?"]\n[Result "*"]\n[SetUp "1"]\n[FEN "rnbqk2r/ppp1nppp/3p4/b3p3/2B1P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 0 1"]\n\n1. d4 exd4 2. cxd4 O-O *');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.d4 exd4 2.cxd4 O-O *');
+        match.setPGN('1.e3 e5 2.Nc3');
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e3 e5 2.Nc3 *');
     });
 });
