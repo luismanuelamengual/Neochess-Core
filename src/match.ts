@@ -98,11 +98,6 @@ export class Match {
         return this.node.getMoves();
     }
 
-    public promotePly(): Match {
-        this.node.promote();
-        return this;
-    }
-
     public getPiece(square: Square): Piece {
         return this.node.getBoard().getPiece(square);
     }
@@ -236,6 +231,11 @@ export class Match {
     public setMoveLine(moves: Array<Move|string>): boolean {
         this.node = new MatchNode(new Board());
         return this.makeMoves(moves);
+    }
+
+    public promoteMoveLine(): Match {
+        this.node.promote();
+        return this;
     }
 
     public setComment(comment: string): Match {
