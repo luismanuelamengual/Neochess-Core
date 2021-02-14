@@ -329,6 +329,59 @@ export class Match {
     }
 
     public getPGN(): string {
+        const getPGNMoveList = function(node: MatchNode, addMoveCounterHeader = true): string {
+            const board = node.getBoard();
+            let pgn = '';
+            let onMainLine = true;
+            const moves = node.getMoves();
+            let mainChildNode: MatchNode = null;
+            let addMainChildNodeMoveCounterHeader = false;
+            for (const move of moves) {
+                const childNode = node.getChildNode(move);
+                if (!onMainLine) {
+                    pgn += '(';
+                }
+                if (!onMainLine || board.getSideToMove() == Side.WHITE || addMoveCounterHeader) {
+                    pgn += Math.floor(board.getMoveCounter()/2) + 1;
+                    pgn += '.';
+                    if (board.getSideToMove() == Side.BLACK) {
+                        pgn += '..';
+                    }
+                }
+                pgn += move.getSAN();
+                pgn += ' ';
+                let addChildNodeMoveCounterHeader = false;
+                const comment = childNode.getComment();
+                if (comment) {
+                    pgn += '{' + comment + '}';
+                    pgn += ' ';
+                    if (onMainLine) {
+                        addMainChildNodeMoveCounterHeader = true;
+                    } else {
+                        addChildNodeMoveCounterHeader = true;
+                    }
+                }
+                const annotations = childNode.getAnnotations();
+                if (annotations) {
+                    for (const annotation of annotations) {
+                        pgn += '$' + annotation + ' ';
+                    }
+                }
+                if (onMainLine) {
+                    mainChildNode = childNode;
+                } else {
+                    let variationMoveLine = getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
+                    pgn += variationMoveLine.substring(0, variationMoveLine.length-1);
+                    pgn += ') ';
+                    addMainChildNodeMoveCounterHeader = true;
+                }
+                onMainLine = false;
+            }
+            if (mainChildNode) {
+                pgn += getPGNMoveList(mainChildNode, addMainChildNodeMoveCounterHeader);
+            }
+            return pgn;
+        };
         let backupNode = this.node;
         this.node = this.node.getMainNode();
         let result = this.tags.get(Pgn.RESULT);
@@ -352,13 +405,98 @@ export class Match {
             pgn += `[${Pgn.RESULT} "${result}"]\n`;
         }
         pgn += '\n';
-        pgn += this.getPGNMoveList(this.node.getRootNode());
+        pgn += getPGNMoveList(this.node.getRootNode());
         pgn += result;
         this.node = backupNode;
         return pgn;
     }
 
     public setPGN(pgn): Match {
+        const setPGNMoveList = function(node: MatchNode, moveText: string): Match {
+            if (moveText.length > 0) {
+                let index = moveText.indexOf(' ');
+                if (index < 0) {
+                    index = moveText.length;
+                }
+                let newIndex: number;
+                const sanMove = moveText.substring(0, index);
+                let legalMove: Move = null;
+                const moves = node.getBoard().getLegalMoves(true);
+                for (const testMove of moves) {
+                    const testMoveSAN = testMove.getSAN();
+                    if (testMoveSAN == sanMove) {
+                        legalMove = testMove;
+                        break;
+                    }
+                }
+                if (!legalMove) {
+                    throw new Error('Illegal move \'' + sanMove + '\'');
+                }
+                const board = node.getBoard().clone();
+                board.makeMove(legalMove);
+                const newNode = new MatchNode(board);
+                node.addChild(legalMove, newNode);
+
+                index++;
+                let foundNextMove = false;
+                while(index < moveText.length) {
+                    switch (moveText.charAt(index)) {
+                        case '$':
+                            newIndex = moveText.indexOf(' ', index);
+                            if (newIndex < 0) {
+                                throw new Error('Invalid annotation glyph');
+                            }
+                            newNode.addAnnotation(parseInt(moveText.substring(index + 1, newIndex)) as Annotation);
+                            index = newIndex + 1;
+                            break;
+                        case '{':
+                            newIndex = moveText.indexOf('}');
+                            if (newIndex < 0) {
+                                throw new Error('Unterminated comment');
+                            }
+                            newNode.setComment(moveText.substring(index + 1, newIndex));
+                            index = newIndex + 1;
+                            break;
+                        case '(':
+                            let parenthesisCount = 1;
+                            index++;
+                            newIndex = index;
+                            let foundSecondaryLine = false;
+                            while (newIndex < moveText.length) {
+                                const lineChar = moveText.charAt(newIndex);
+                                if (lineChar == '(') {
+                                    parenthesisCount++;
+                                } else if (lineChar == ')') {
+                                    if (--parenthesisCount <= 0) {
+                                        foundSecondaryLine = true;
+                                        setPGNMoveList(node, moveText.substring(index, newIndex));
+                                        index = newIndex + 1;
+                                        break;
+                                    }
+                                }
+                                newIndex++;
+                            }
+                            if (!foundSecondaryLine) {
+                                throw new Error('Unterminated secondary line');
+                            }
+                            break;
+                        case ' ':
+                            index++;
+                            break;
+                        default:
+                            foundNextMove = true;
+                            break;
+                    }
+                    if (foundNextMove) {
+                        break;
+                    }
+                }
+                if (foundNextMove) {
+                    setPGNMoveList(newNode, moveText.substring(index));
+                }
+            }
+            return this;
+        };
         let tags: Map<Pgn, string> = null;
         const pgnParts = pgn.split('\n\n');
         let pgnHeaders: string;
@@ -398,147 +536,7 @@ export class Match {
         if (pgnMoveText.endsWith(' *') || pgnMoveText.endsWith(' 1-0') || pgnMoveText.endsWith(' 0-1') || pgnMoveText.endsWith(' 1/2-1/2')) {
             pgnMoveText = pgnMoveText.substring(0, pgnMoveText.lastIndexOf(' '));
         }
-        this.setPGNMoveList(this.node, pgnMoveText);
-        return this;
-    }
-
-    private getPGNMoveList(node: MatchNode, addMoveCounterHeader = true): string {
-        const board = node.getBoard();
-        let pgn = '';
-        let onMainLine = true;
-        const moves = node.getMoves();
-        let mainChildNode: MatchNode = null;
-        let addMainChildNodeMoveCounterHeader = false;
-        for (const move of moves) {
-            const childNode = node.getChildNode(move);
-            if (!onMainLine) {
-                pgn += '(';
-            }
-            if (!onMainLine || board.getSideToMove() == Side.WHITE || addMoveCounterHeader) {
-                pgn += Math.floor(board.getMoveCounter()/2) + 1;
-                pgn += '.';
-                if (board.getSideToMove() == Side.BLACK) {
-                    pgn += '..';
-                }
-            }
-            pgn += move.getSAN();
-            pgn += ' ';
-            let addChildNodeMoveCounterHeader = false;
-            const comment = childNode.getComment();
-            if (comment) {
-                pgn += '{' + comment + '}';
-                pgn += ' ';
-                if (onMainLine) {
-                    addMainChildNodeMoveCounterHeader = true;
-                } else {
-                    addChildNodeMoveCounterHeader = true;
-                }
-            }
-            const annotations = childNode.getAnnotations();
-            if (annotations) {
-                for (const annotation of annotations) {
-                    pgn += '$' + annotation + ' ';
-                }
-            }
-            if (onMainLine) {
-                mainChildNode = childNode;
-            } else {
-                let variationMoveLine = this.getPGNMoveList(childNode, addChildNodeMoveCounterHeader);
-                pgn += variationMoveLine.substring(0, variationMoveLine.length-1);
-                pgn += ') ';
-                addMainChildNodeMoveCounterHeader = true;
-            }
-            onMainLine = false;
-        }
-        if (mainChildNode) {
-            pgn += this.getPGNMoveList(mainChildNode, addMainChildNodeMoveCounterHeader);
-        }
-        return pgn;
-    }
-
-    private setPGNMoveList(node: MatchNode, moveText: string): Match {
-        if (moveText.length > 0) {
-            let index = moveText.indexOf(' ');
-            if (index < 0) {
-                index = moveText.length;
-            }
-            let newIndex: number;
-            const sanMove = moveText.substring(0, index);
-            let legalMove: Move = null;
-            const moves = node.getBoard().getLegalMoves(true);
-            for (const testMove of moves) {
-                const testMoveSAN = testMove.getSAN();
-                if (testMoveSAN == sanMove) {
-                    legalMove = testMove;
-                    break;
-                }
-            }
-            if (!legalMove) {
-                throw new Error('Illegal move \'' + sanMove + '\'');
-            }
-            const board = node.getBoard().clone();
-            board.makeMove(legalMove);
-            const newNode = new MatchNode(board);
-            node.addChild(legalMove, newNode);
-
-            index++;
-            let foundNextMove = false;
-            while(index < moveText.length) {
-                switch (moveText.charAt(index)) {
-                    case '$':
-                        newIndex = moveText.indexOf(' ', index);
-                        if (newIndex < 0) {
-                            throw new Error('Invalid annotation glyph');
-                        }
-                        newNode.addAnnotation(parseInt(moveText.substring(index + 1, newIndex)) as Annotation);
-                        index = newIndex + 1;
-                        break;
-                    case '{':
-                        newIndex = moveText.indexOf('}');
-                        if (newIndex < 0) {
-                            throw new Error('Unterminated comment');
-                        }
-                        newNode.setComment(moveText.substring(index + 1, newIndex));
-                        index = newIndex + 1;
-                        break;
-                    case '(':
-                        let parenthesisCount = 1;
-                        index++;
-                        newIndex = index;
-                        let foundSecondaryLine = false;
-                        while (newIndex < moveText.length) {
-                            const lineChar = moveText.charAt(newIndex);
-                            if (lineChar == '(') {
-                                parenthesisCount++;
-                            } else if (lineChar == ')') {
-                                if (--parenthesisCount <= 0) {
-                                    foundSecondaryLine = true;
-                                    this.setPGNMoveList(node, moveText.substring(index, newIndex));
-                                    index = newIndex + 1;
-                                    break;
-                                }
-                            }
-                            newIndex++;
-                        }
-                        if (!foundSecondaryLine) {
-                            throw new Error('Unterminated secondary line');
-                        }
-                        break;
-                    case ' ':
-                        index++;
-                        break;
-                    default:
-                        foundNextMove = true;
-                        break;
-                }
-                if (foundNextMove) {
-                    break;
-                }
-            }
-            if (foundNextMove) {
-                this.setPGNMoveList(newNode, moveText.substring(index));
-            }
-        }
+        setPGNMoveList(this.node, pgnMoveText);
         return this;
     }
 }
