@@ -1,4 +1,4 @@
-export enum Pgn {
+export enum PgnTag {
     EVENT = 'Event',
     SITE = 'Site',
     DATE = 'Date',

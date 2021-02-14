@@ -1,7 +1,7 @@
 import {Board} from "./board";
 import {Move} from "./move";
 import {MatchNode} from "./match-node";
-import {Pgn} from "./pgn";
+import {PgnTag} from "./pgn-tag";
 import {Side} from "./side";
 import {Square} from "./square";
 import {Annotation} from "./annotation";
@@ -10,18 +10,18 @@ import {Piece} from "./piece";
 export class Match {
 
     private node: MatchNode;
-    private tags: Map<Pgn, string>;
+    private tags: Map<PgnTag, string>;
 
     constructor();
     constructor(board: Board);
     constructor(fen: string);
-    constructor(board: Board, tags: Map<Pgn, string>);
-    constructor(fen: string, tags: Map<Pgn, string>);
-    constructor(board?: Board|string, tags?: Map<Pgn, string>) {
+    constructor(board: Board, tags: Map<PgnTag, string>);
+    constructor(fen: string, tags: Map<PgnTag, string>);
+    constructor(board?: Board|string, tags?: Map<PgnTag, string>) {
         this.startNew(board, tags);
     }
 
-    public startNew(board?: Board|string, tags?: Map<Pgn, string>) {
+    public startNew(board?: Board|string, tags?: Map<PgnTag, string>) {
         let node: MatchNode;
         if (!board) {
             node = new MatchNode(new Board());
@@ -41,17 +41,17 @@ export class Match {
             if (day.length < 2)
                 day = '0' + day;
             const date = [year, month, day].join('.');
-            tags = new Map<Pgn, string>();
-            tags.set(Pgn.EVENT, '-');
-            tags.set(Pgn.SITE, '-');
-            tags.set(Pgn.DATE, date);
-            tags.set(Pgn.ROUND, '-');
-            tags.set(Pgn.WHITE, '?');
-            tags.set(Pgn.BLACK, '?');
+            tags = new Map<PgnTag, string>();
+            tags.set(PgnTag.EVENT, '-');
+            tags.set(PgnTag.SITE, '-');
+            tags.set(PgnTag.DATE, date);
+            tags.set(PgnTag.ROUND, '-');
+            tags.set(PgnTag.WHITE, '?');
+            tags.set(PgnTag.BLACK, '?');
             const boardFEN = this.node.getBoard().getFEN();
             if (boardFEN != 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
-                tags.set(Pgn.SET_UP, '1');
-                tags.set(Pgn.FEN, boardFEN);
+                tags.set(PgnTag.SET_UP, '1');
+                tags.set(PgnTag.FEN, boardFEN);
             }
         }
         this.tags = tags;
@@ -321,17 +321,17 @@ export class Match {
         return board.getSideToMove() == Side.WHITE && board.isCheckMate();
     }
 
-    public setPGNTag(pgn: Pgn, value: string): Match {
+    public setTag(pgn: PgnTag, value: string): Match {
         this.tags.set(pgn, value);
         return this;
     }
 
-    public removePGNTag(pgn: Pgn): Match {
+    public removeTag(pgn: PgnTag): Match {
         this.tags.delete(pgn);
         return this;
     }
 
-    public getPGNTag(pgn: Pgn): string {
+    public getTag(pgn: PgnTag): string {
         return this.tags.get(pgn);
     }
 
@@ -391,7 +391,7 @@ export class Match {
         };
         let backupNode = this.node;
         this.node = this.node.getMainNode();
-        let result = this.tags.get(Pgn.RESULT);
+        let result = this.tags.get(PgnTag.RESULT);
         if (!result) {
             if (this.isWhiteWin()) {
                 result = '1-0';
@@ -408,8 +408,8 @@ export class Match {
             const pgnValue = this.tags.get(pgnTag);
             pgn += `[${pgnTag} "${pgnValue}"]\n`;
         }
-        if (!this.tags.has(Pgn.RESULT)) {
-            pgn += `[${Pgn.RESULT} "${result}"]\n`;
+        if (!this.tags.has(PgnTag.RESULT)) {
+            pgn += `[${PgnTag.RESULT} "${result}"]\n`;
         }
         pgn += '\n';
         pgn += getPGNMoveList(this.node.getRootNode());
@@ -504,12 +504,12 @@ export class Match {
             }
             return this;
         };
-        let tags: Map<Pgn, string> = null;
+        let tags: Map<PgnTag, string> = null;
         const pgnParts = pgn.split('\n\n');
         let pgnHeaders: string;
         let pgnMoveText: string;
         if (pgnParts.length > 1) {
-            tags = new Map<Pgn, string>();
+            tags = new Map<PgnTag, string>();
             pgnHeaders = pgnParts[0];
             pgnMoveText = pgnParts[1];
         } else {
@@ -521,12 +521,12 @@ export class Match {
             const matchResult = pgnHeader.match(headerRegExp);
             if (matchResult) {
                 const [,pgnTag, pgnTagValue] = matchResult;
-                tags.set(pgnTag as Pgn, pgnTagValue);
+                tags.set(pgnTag as PgnTag, pgnTagValue);
             }
         }
         let board: Board;
-        if (tags && tags.get(Pgn.SET_UP) == '1') {
-            board = new Board(tags.get(Pgn.FEN));
+        if (tags && tags.get(PgnTag.SET_UP) == '1') {
+            board = new Board(tags.get(PgnTag.FEN));
         } else {
             board = new Board();
         }
