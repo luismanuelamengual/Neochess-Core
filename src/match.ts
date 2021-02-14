@@ -512,7 +512,7 @@ export class Match {
             pgnHeaders = pgnParts[0];
             pgnMoveText = pgnParts[1];
             tags = new Map<PgnTag, string>();
-            const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*\]\s*$/;
+            const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*]\s*$/;
             for (const pgnHeader of pgnHeaders.split('\n')) {
                 const matchResult = pgnHeader.match(headerRegExp);
                 if (matchResult) {
@@ -521,7 +521,6 @@ export class Match {
                 }
             }
         } else {
-            pgnHeaders = '';
             pgnMoveText = pgnParts[0];
         }
         let board: Board;
