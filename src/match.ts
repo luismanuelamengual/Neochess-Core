@@ -509,20 +509,20 @@ export class Match {
         let pgnHeaders: string;
         let pgnMoveText: string;
         if (pgnParts.length > 1) {
-            tags = new Map<PgnTag, string>();
             pgnHeaders = pgnParts[0];
             pgnMoveText = pgnParts[1];
+            tags = new Map<PgnTag, string>();
+            const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*\]\s*$/;
+            for (const pgnHeader of pgnHeaders.split('\n')) {
+                const matchResult = pgnHeader.match(headerRegExp);
+                if (matchResult) {
+                    const [,pgnTag, pgnTagValue] = matchResult;
+                    tags.set(pgnTag as PgnTag, pgnTagValue);
+                }
+            }
         } else {
             pgnHeaders = '';
             pgnMoveText = pgnParts[0];
-        }
-        const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*\]\s*$/;
-        for (const pgnHeader of pgnHeaders.split('\n')) {
-            const matchResult = pgnHeader.match(headerRegExp);
-            if (matchResult) {
-                const [,pgnTag, pgnTagValue] = matchResult;
-                tags.set(pgnTag as PgnTag, pgnTagValue);
-            }
         }
         let board: Board;
         if (tags && tags.get(PgnTag.SET_UP) == '1') {
