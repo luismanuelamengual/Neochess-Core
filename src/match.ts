@@ -332,15 +332,20 @@ export class Match {
     }
 
     public setPGN(pgn): Match {
-        this.startNew();
+        this.tags = new Map<Pgn, string>();
         const [pgnHeaders, pgnMoveText] = pgn.split('\n\n');
         const headerRegExp = /\[\s*(\w*)\s*"(.*)"\s*\]\s*$/;
         for (const pgnHeader of pgnHeaders.split('\n')) {
             const matchResult = pgnHeader.match(headerRegExp);
             if (matchResult) {
                 const [,pgnTag, pgnTagValue] = matchResult;
-                this.setPGNTag(pgnTag, pgnTagValue);
+                this.tags.set(pgnTag, pgnTagValue);
             }
+        }
+        if (this.tags.get(Pgn.SET_UP) == '1') {
+            this.node = new MatchNode(new Board(this.tags.get(Pgn.FEN)));
+        } else {
+            this.node = new MatchNode(new Board());
         }
 
         let moveText = pgnMoveText;
