@@ -39,7 +39,7 @@ describe("Match tests", () => {
         match.makeMove('d6');
         match.setComment('APA !! aca me deje mate en 1');
         match.makeMove('Qxf7#');
-        match.goToPly(2);
+        match.goToPosition(2);
         match.makeMove('Nf3');
         match.makeMove('Bb4');
         match.setComment('Estoy en una variante');
@@ -48,7 +48,7 @@ describe("Match tests", () => {
         match.makeMove('c3');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Qxf7# 1-0');
         match.makeMove('Ba5');
-        match.goToMainPly();
+        match.goToCurrentPosition();
         match.unmakeMove();
         match.unmakeMove();
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 *');
@@ -57,14 +57,14 @@ describe("Match tests", () => {
         match.makeMove('Qxf6');
         match.makeMove('Nxf6');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 Qf6 $1 5.Qxf6 Nxf6 *');
-        match.goToPreviousPly();
-        match.goToPreviousPly();
-        match.goToPreviousPly();
-        match.goToPreviousPly();
+        match.goToPreviousPosition();
+        match.goToPreviousPosition();
+        match.goToPreviousPosition();
+        match.goToPreviousPosition();
         match.addAnnotation(Annotation.POOR_MOVE);
-        match.goToPreviousPly();
-        match.goToPreviousPly();
-        match.goToNextPly();
+        match.goToPreviousPosition();
+        match.goToPreviousPosition();
+        match.goToNextPosition();
         match.makeMove('Qf6');
         match.makeMove('d4');
         match.makeMove('exd4');
@@ -82,7 +82,7 @@ describe("Match tests", () => {
         match.makeMove('Qh5');
         match.makeMove('Qg6');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 Qg6 6.Qh3 Qd6 7.Qh5 Qg6 8.Qh3 Qd6 9.Qh5 Qg6 1/2-1/2');
-        match.goToPreviousPly();
+        match.goToPreviousPosition();
         match.makeMove('Qg6');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 Qg6 6.Qh3 Qd6 7.Qh5 Qg6 8.Qh3 Qd6 9.Qh5 Qg6 1/2-1/2');
         const pgn = match.getPGN();

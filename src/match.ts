@@ -57,29 +57,29 @@ export class Match {
         this.tags = tags;
     }
 
-    public goToPly(ply?: number): Match {
+    public goToPosition(ply?: number): Match {
         this.node = ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode();
         return this;
     }
 
-    public goToRootPly(): Match {
+    public goToStartPosition(): Match {
         this.node = this.node.getRootNode();
         return this;
     }
 
-    public goToMainPly(): Match {
+    public goToCurrentPosition(): Match {
         this.node = this.node.getMainNode();
         return this;
     }
 
-    public goToPreviousPly(): Match {
+    public goToPreviousPosition(): Match {
         if (this.node.getParentNode()) {
             this.node = this.node.getParentNode();
         }
         return this;
     }
 
-    public goToNextPly(variationMove?: Move): Match {
+    public goToNextPosition(variationMove?: Move): Match {
         if (!variationMove) {
             const childNodes = this.node.getChildNodes();
             if (childNodes.length > 0) {
@@ -92,10 +92,6 @@ export class Match {
             }
         }
         return this;
-    }
-
-    public getPly(): number {
-        return this.node.getBoard().getMoveCounter();
     }
 
     public getVariationMoves(): Array<Move> {
