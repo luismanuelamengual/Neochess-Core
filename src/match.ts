@@ -139,7 +139,32 @@ export class Match {
         return this.node.getBoard().getHalfMoveCounter();
     }
 
-    public getLegalMove(move: Move|string): Move {
+    public getLegalMoves (): Array<Move > {
+        return this.node.getBoard().getLegalMoves(true);
+    }
+
+    public isMoveLegal(move: Move|string): boolean {
+        let isLegalMove = false;
+        const moves = this.node.getBoard().getLegalMoves(true);
+        for (const testMove of moves) {
+            if (move instanceof Move) {
+                if (testMove.equals(move)) {
+                    isLegalMove = true;
+                    break;
+                }
+            } else {
+                const testMoveSAN = testMove.getSAN();
+                if (testMoveSAN == move) {
+                    isLegalMove = true;
+                    break;
+                }
+            }
+        }
+        return isLegalMove;
+    }
+
+    public makeMove(move: Move|string): boolean {
+        let moveMade = false;
         let legalMove: Move = null;
         const moves = this.node.getBoard().getLegalMoves(true);
         for (const testMove of moves) {
@@ -156,20 +181,6 @@ export class Match {
                 }
             }
         }
-        return legalMove;
-    }
-
-    public getLegalMoves (): Array<Move > {
-        return this.node.getBoard().getLegalMoves(true);
-    }
-
-    public isMoveLegal(move: Move|string): boolean {
-        return this.getLegalMove(move) != null;
-    }
-
-    public makeMove(move: Move|string): boolean {
-        let moveMade = false;
-        const legalMove = this.getLegalMove(move);
         if (legalMove != null) {
             const variationMoves = this.getVariationMoves();
             let inVariationMove = false;
