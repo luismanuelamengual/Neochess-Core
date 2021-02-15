@@ -52,7 +52,13 @@ export class Board {
     }
 
     public setFrom(board: Board): Board {
-        for (let square = Square.A1; square <= Square.H8; square++) { this.squares[square] = board.squares[square]; }
+        for (let square = Square.A1; square <= Square.H8; square++) {
+            if (board.squares[square] >= Piece.WHITE_PAWN) {
+                this.squares[square] = board.squares[square];
+            } else {
+                delete this.squares[square];
+            }
+        }
         this.epSquare = board.epSquare;
         this.castleRights = board.castleRights;
         this.sideToMove = board.sideToMove;
