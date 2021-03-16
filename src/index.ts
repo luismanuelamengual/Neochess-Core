@@ -6,3 +6,4 @@ export * from './rank';
 export * from './square';
 export * from './board';
 export * from './move';
+export * from './board-utils';

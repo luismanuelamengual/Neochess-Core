@@ -102,8 +102,8 @@ export class Match {
         return this.node.getBoard().getPiece(square);
     }
 
-    public getFEN(): string {
-        return this.node.getBoard().getFEN();
+    public getSideToMove(): Side {
+        return this.node.getBoard().getSideToMove();
     }
 
     public canWhiteKingSideCastle(): boolean {
@@ -128,6 +128,10 @@ export class Match {
 
     public getHalfMoveCounter(): number {
         return this.node.getBoard().getHalfMoveCounter();
+    }
+
+    public getFEN(): string {
+        return this.node.getBoard().getFEN();
     }
 
     public getLegalMoves(): Array<Move > {
