@@ -8,3 +8,5 @@ export * from './board';
 export * from './match';
 export * from './move';
 export * from './board-utils';
+export * from './pgn-tag';
+export * from './annotation';
