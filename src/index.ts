@@ -5,5 +5,6 @@ export * from './file';
 export * from './rank';
 export * from './square';
 export * from './board';
+export * from './match';
 export * from './move';
 export * from './board-utils';
