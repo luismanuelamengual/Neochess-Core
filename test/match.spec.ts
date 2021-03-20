@@ -18,6 +18,10 @@ describe("Match tests", () => {
         match.unmakeMove();
         match.makeMove('e6');
         expect(match.getFEN()).toEqual('r1bqkbnr/pppp1ppp/2n1p3/4P3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3');
+        match.makeMove('d4');
+        expect(match.getMove().getSAN()).toEqual('d4');
+        expect(match.getMove(0).getSAN()).toEqual('e4');
+        expect(match.getMove(3).getSAN()).toEqual('e6');
     });
 
     test("PGN", () => {

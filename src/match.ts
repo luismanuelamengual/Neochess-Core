@@ -205,6 +205,18 @@ export class Match {
         return isLegalMove;
     }
 
+    public getMove(ply?: number): Move|null {
+        let move: Move = null;
+        const node = ply >= 0 ? this.node.getNode(ply + 1) : this.node;
+        if (node) {
+            const parentNode = node.getParentNode();
+            if (parentNode) {
+                move = parentNode.getMove(node);
+            }
+        }
+        return move;
+    }
+
     public makeMove(move: Move|string, silent = false): boolean {
         let moveMade = false;
         let legalMove: Move = null;
