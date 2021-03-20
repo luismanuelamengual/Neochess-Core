@@ -181,7 +181,7 @@ export class Match {
         return this.node.getBoard().getFEN();
     }
 
-    public getLegalMoves(): Array<Move > {
+    public getLegalMoves(): Array<Move> {
         return this.node.getBoard().getLegalMoves(true);
     }
 
