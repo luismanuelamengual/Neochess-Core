@@ -1,4 +1,4 @@
-# Neochess-Engine
+# Neochess-Core
 Chess Library
 
 ## Build & deploy
