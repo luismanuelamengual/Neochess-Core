@@ -205,7 +205,7 @@ export class Match {
         return isLegalMove;
     }
 
-    public makeMove(move: Move|string): boolean {
+    public makeMove(move: Move|string, silent = false): boolean {
         let moveMade = false;
         let legalMove: Move = null;
         const moves = this.node.getBoard().getLegalMoves(true);
@@ -229,7 +229,7 @@ export class Match {
             if (variationMoves) {
                 for (const variationMove of variationMoves) {
                     if (variationMove.getSAN() == legalMove.getSAN()) {
-                        this.setNode(this.node.getChildNode(variationMove));
+                        this.setNode(this.node.getChildNode(variationMove), silent);
                         inVariationMove = true;
                         break;
                     }
@@ -240,32 +240,35 @@ export class Match {
                 board.makeMove(legalMove);
                 const newNode = new MatchNode(board);
                 this.node.addChild(legalMove, newNode);
-                this.setNode(newNode);
+                this.setNode(newNode, silent);
             }
             moveMade = true;
         }
         return moveMade;
     }
 
-    public unmakeMove(): boolean {
+    public unmakeMove(silent = false): boolean {
         let moveUnmade = false;
         const currentNode = this.node;
         if (currentNode.getParentNode()) {
             const parentNode = currentNode.getParentNode();
             parentNode.removeChild(currentNode);
-            this.setNode(parentNode);
+            this.setNode(parentNode, silent);
             moveUnmade = true;
         }
         return moveUnmade;
     }
 
-    public makeMoves(moves: Array<Move|string>): boolean {
+    public makeMoves(moves: Array<Move|string>, silent = false): boolean {
         let movesMade = true;
         for (const move of moves) {
-            if (!this.makeMove(move)) {
+            if (!this.makeMove(move, true)) {
                 movesMade = false;
                 break;
             }
+        }
+        if (!silent) {
+            this.triggerEvent('positionChange');
         }
         return movesMade;
     }
@@ -281,7 +284,7 @@ export class Match {
     }
 
     public setMoveLine(moves: Array<Move|string>): boolean {
-        this.setNode(new MatchNode(new Board()));
+        this.setNode(new MatchNode(new Board()), true);
         return this.makeMoves(moves);
     }
 
