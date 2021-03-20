@@ -11,6 +11,7 @@ export class Match {
 
     private node: MatchNode;
     private tags: Map<PgnTag, string>;
+    private listeners: Map<string, Array<(...args: any[]) => void>>;
 
     constructor();
     constructor(board: Board);
@@ -18,10 +19,11 @@ export class Match {
     constructor(board: Board, tags: Map<PgnTag, string>);
     constructor(fen: string, tags: Map<PgnTag, string>);
     constructor(board?: Board|string, tags?: Map<PgnTag, string>) {
+        this.listeners = new Map<string, Array<(...args: any[]) => void>>();
         this.startNew(board, tags);
     }
 
-    public startNew(board?: Board|string, tags?: Map<PgnTag, string>) {
+    public startNew(board?: Board|string, tags?: Map<PgnTag, string>, silent = false) {
         let node: MatchNode;
         if (!board) {
             node = new MatchNode(new Board());
@@ -30,7 +32,6 @@ export class Match {
         } else {
             node = new MatchNode(new Board(board));
         }
-        this.node = node;
         if (!tags) {
             const d = new Date();
             let month = '' + (d.getMonth() + 1);
@@ -48,33 +49,79 @@ export class Match {
             tags.set(PgnTag.ROUND, '-');
             tags.set(PgnTag.WHITE, '?');
             tags.set(PgnTag.BLACK, '?');
-            const boardFEN = this.node.getBoard().getFEN();
+            const boardFEN = node.getBoard().getFEN();
             if (boardFEN != 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
                 tags.set(PgnTag.SET_UP, '1');
                 tags.set(PgnTag.FEN, boardFEN);
             }
         }
+        this.setNode(node, silent);
         this.tags = tags;
+        if (!silent) {
+            this.triggerEvent('matchStart');
+        }
+    }
+
+    public addEventListener(event: string, listener: (...args: any[]) => void): Match {
+        let eventListeners = this.listeners.get(event);
+        if (!eventListeners) {
+            eventListeners = new Array<(...args: any[]) => void>();
+            this.listeners.set(event, eventListeners);
+        }
+        eventListeners.push(listener);
+        return this;
+    }
+
+    public removeEventListener(event: string, listener: (...args: any[]) => void): Match {
+        let eventListeners = this.listeners.get(event);
+        if (eventListeners) {
+            const eventListenerIndex = eventListeners.indexOf(listener);
+            if (eventListenerIndex >= 0) {
+                eventListeners.splice(eventListenerIndex, 1);
+            }
+        }
+        return this;
+    }
+
+    private triggerEvent(event: string, ...args: any[]): Match {
+        const eventListeners = this.listeners.get(event);
+        if (eventListeners) {
+            for (const eventListener of eventListeners) {
+                try {
+                    eventListener(args);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        }
+        return this;
+    }
+
+    private setNode(node: MatchNode, silent = false): Match {
+        if (this.node !== node) {
+            this.node = node;
+            if (!silent) {
+                this.triggerEvent('positionChange');
+            }
+        }
+        return this;
     }
 
     public goToPosition(ply?: number): Match {
-        this.node = ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode();
-        return this;
+        return this.setNode(ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode());
     }
 
     public goToStartPosition(): Match {
-        this.node = this.node.getRootNode();
-        return this;
+        return this.setNode(this.node.getRootNode());
     }
 
     public goToCurrentPosition(): Match {
-        this.node = this.node.getMainNode();
-        return this;
+        return this.setNode(this.node.getMainNode());
     }
 
     public goToPreviousPosition(): Match {
         if (this.node.getParentNode()) {
-            this.node = this.node.getParentNode();
+            this.setNode(this.node.getParentNode());
         }
         return this;
     }
@@ -83,12 +130,12 @@ export class Match {
         if (!variationMove) {
             const childNodes = this.node.getChildNodes();
             if (childNodes.length > 0) {
-                this.node = childNodes[0];
+                this.setNode(childNodes[0]);
             }
         } else {
             const variationMoves = this.node.getMoves();
             if (variationMoves.includes(variationMove)) {
-                this.node = this.node.getChildNode(variationMove);
+                this.setNode(this.node.getChildNode(variationMove));
             }
         }
         return this;
@@ -182,7 +229,7 @@ export class Match {
             if (variationMoves) {
                 for (const variationMove of variationMoves) {
                     if (variationMove.getSAN() == legalMove.getSAN()) {
-                        this.node = this.node.getChildNode(variationMove);
+                        this.setNode(this.node.getChildNode(variationMove));
                         inVariationMove = true;
                         break;
                     }
@@ -193,7 +240,7 @@ export class Match {
                 board.makeMove(legalMove);
                 const newNode = new MatchNode(board);
                 this.node.addChild(legalMove, newNode);
-                this.node = newNode;
+                this.setNode(newNode);
             }
             moveMade = true;
         }
@@ -204,8 +251,9 @@ export class Match {
         let moveUnmade = false;
         const currentNode = this.node;
         if (currentNode.getParentNode()) {
-            this.node = currentNode.getParentNode();
-            this.node.removeChild(currentNode);
+            const parentNode = currentNode.getParentNode();
+            parentNode.removeChild(currentNode);
+            this.setNode(parentNode);
             moveUnmade = true;
         }
         return moveUnmade;
@@ -233,7 +281,7 @@ export class Match {
     }
 
     public setMoveLine(moves: Array<Move|string>): boolean {
-        this.node = new MatchNode(new Board());
+        this.setNode(new MatchNode(new Board()));
         return this.makeMoves(moves);
     }
 
@@ -423,7 +471,8 @@ export class Match {
     }
 
     public setPGN(pgn): Match {
-        const setPGNMoveList = function(node: MatchNode, moveText: string): Match {
+        const setPGNMoveList = function(node: MatchNode, moveText: string): MatchNode {
+            let newNode = node;
             if (moveText.length > 0) {
                 let index = moveText.indexOf(' ');
                 if (index < 0) {
@@ -445,7 +494,7 @@ export class Match {
                 }
                 const board = node.getBoard().clone();
                 board.makeMove(legalMove);
-                const newNode = new MatchNode(board);
+                newNode = new MatchNode(board);
                 node.addChild(legalMove, newNode);
 
                 index++;
@@ -503,10 +552,10 @@ export class Match {
                     }
                 }
                 if (foundNextMove) {
-                    setPGNMoveList(newNode, moveText.substring(index));
+                    newNode = setPGNMoveList(newNode, moveText.substring(index));
                 }
             }
-            return this;
+            return newNode;
         };
         let tags: Map<PgnTag, string> = null;
         const pgnParts = pgn.split('\n\n');
@@ -533,7 +582,7 @@ export class Match {
         } else {
             board = new Board();
         }
-        this.startNew(board, tags);
+        this.startNew(board, tags, true);
         pgnMoveText = pgnMoveText.replace(/\d+\.(\.\.)?/g, '');
         pgnMoveText = pgnMoveText.replace(/\.\.\./g, '');
         pgnMoveText = pgnMoveText.replace(/\s\s+/g, ' ');
@@ -546,7 +595,7 @@ export class Match {
         if (pgnMoveText.endsWith(' *') || pgnMoveText.endsWith(' 1-0') || pgnMoveText.endsWith(' 0-1') || pgnMoveText.endsWith(' 1/2-1/2')) {
             pgnMoveText = pgnMoveText.substring(0, pgnMoveText.lastIndexOf(' '));
         }
-        setPGNMoveList(this.node, pgnMoveText);
+        this.setNode(setPGNMoveList(this.node, pgnMoveText));
         return this;
     }
 }
