@@ -97,4 +97,17 @@ describe("Match tests", () => {
         match.setPGN('1.e3 e5 2.Nc3');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e3 e5 2.Nc3 *');
     });
+
+    test("Node Movement", () => {
+        const match = new Match();
+        match.makeMove('e4');
+        match.makeMove('Nc6');
+        const positionFen = match.getFEN();
+        const positionId = match.getPositionId();
+        match.makeMove('e5');
+        match.makeMove('f5');
+        match.makeMove('exf6');
+        match.goToPositionId(positionId);
+        expect(match.getFEN()).toEqual(positionFen);
+    });
 });

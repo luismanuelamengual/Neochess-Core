@@ -107,6 +107,18 @@ export class Match {
         return this;
     }
 
+    public getPositionId(): number {
+        return this.node.getId();
+    }
+
+    public goToPositionId(id: number): Match {
+        const node = this.node.getNodeById(id);
+        if (node) {
+            this.setNode(node);
+        }
+        return this;
+    }
+
     public goToPosition(ply?: number): Match {
         return this.setNode(ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode());
     }

@@ -4,6 +4,9 @@ import {Annotation} from "./annotation";
 
 export class MatchNode {
 
+    private static nodeCounter = 0;
+
+    private id: number;
     private parentNode: MatchNode;
     private childNodes: Map<Move, MatchNode>;
     private board: Board;
@@ -11,9 +14,14 @@ export class MatchNode {
     private annotations: Array<Annotation>;
 
     constructor(board: Board) {
+        this.id = MatchNode.nodeCounter++;
         this.board = board;
         this.childNodes = new Map<Move, MatchNode>();
         this.annotations = [];
+    }
+
+    public getId(): number {
+        return this.id;
     }
 
     public getBoard(): Board {
@@ -51,6 +59,24 @@ export class MatchNode {
             testNode = testNode.parentNode;
         }
         return node;
+    }
+
+    public getNodeById(id: number, node?: MatchNode): MatchNode {
+        if (!node) {
+            node = this.getRootNode();
+        }
+        let foundNode = null;
+        if (node.getId() == id) {
+            foundNode = node;
+        } else if (node.childNodes.size > 0) {
+            for (const move of node.childNodes.keys()) {
+                foundNode = this.getNodeById(id, node.childNodes.get(move));
+                if (foundNode) {
+                    break;
+                }
+            }
+        }
+        return foundNode;
     }
 
     public addChild(move: Move, node: MatchNode) {
