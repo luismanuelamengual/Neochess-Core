@@ -100,14 +100,27 @@ describe("Match tests", () => {
 
     test("Node Movement", () => {
         const match = new Match();
+        const startingFen = match.getFEN();
         match.makeMove('e4');
         match.makeMove('Nc6');
         const positionFen = match.getFEN();
         const positionId = match.getPositionId();
         match.makeMove('e5');
+        const fen1 = match.getFEN();
         match.makeMove('f5');
+        const fen2 = match.getFEN();
         match.makeMove('exf6');
+        const currentFen = match.getFEN();
+        match.goToPreviousPosition();
+        match.goToPreviousPosition();
+        expect(match.getFEN()).toEqual(fen1);
+        match.goToNextPosition();
+        expect(match.getFEN()).toEqual(fen2);
+        match.goToCurrentPosition();
+        expect(match.getFEN()).toEqual(currentFen);
         match.goToPositionId(positionId);
         expect(match.getFEN()).toEqual(positionFen);
+        match.goToStartPosition();
+        expect(match.getFEN()).toEqual(startingFen);
     });
 });
