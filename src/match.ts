@@ -57,9 +57,6 @@ export class Match {
         }
         this.setNode(node, silent);
         this.tags = tags;
-        if (!silent) {
-            this.triggerEvent('matchStart');
-        }
     }
 
     public addEventListener(event: string, listener: (...args: any[]) => void): Match {
