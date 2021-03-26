@@ -7,9 +7,9 @@
 
 # Neochess-Core
 
-Neochess-Core is a Javascript chess library that supports move validation/generation, piece placement/movement and detection check/checkmate/draw situations. This library supports moves in SAN notation and also support FEN notation for static positions and PGN notation for saving/loading a match state. 
+Neochess-Core is a Javascript chess library that supports move validation/generation, piece placement/movement and detection of check/checkmate/draw situations. This library supports moves in SAN notation and also supports FEN notation for static positions and PGN notation for dynamic chess matches. 
 
-This library has been extensively tested in Jest.
+This library has been extensively tested with Jest.
 
 ## Installation
 
@@ -33,7 +33,7 @@ import {Match} from "@neochess/core";
 const match = new Match();
 
 // Create a match starting from a valid FEN position 
-const match2 = new Match('1k6/3R4/4P3/8/3b2r1/8/5r2/7K w - - 0 1');
+const matchFEN = new Match('1k6/3R4/4P3/8/3b2r1/8/5r2/7K w - - 0 1');
 ```
 
 ## Examples
