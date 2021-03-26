@@ -314,16 +314,16 @@ export class Match {
         return this;
     }
 
-    public setComment(comment: string): Match {
+    public addComments(comment: string): Match {
         this.node.setComment(comment);
         return this;
     }
 
-    public getComment(): string {
+    public getComments(): string {
         return this.node.getComment();
     }
 
-    public deleteComment(): Match {
+    public deleteComments(): Match {
         this.node.deleteComment();
         return this;
     }
