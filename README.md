@@ -99,6 +99,17 @@ match.deleteComments();  // Removing comments of the position
 ### Adding annotations on positions
 
 ```js
+// Adding annotations
 match.addAnnotation(Annotation.VERY_GOOD_MOVE);
 match.addAnnotation(Annotation.QUESTIONABLE_MOVE);
+
+// Getting annotations
+match.getAnnotations();
+
+// Removing annotations
+match.clearAnnotations();
 ```
+
+## Contact
+
+For bugs or for requirements please contact me at luismanuelamengual@gmail.com
