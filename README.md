@@ -82,7 +82,7 @@ match.goToPosition(2);  // Move to position at ply 2
 
 ```js
 // Loading a PGN
-match.setPGN('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Nc3 *');
+match.setPGN('1.e4 $1 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 *');
 
 // Obtaining a PGN
 match.getPGN();
@@ -108,6 +108,21 @@ match.getAnnotations();
 
 // Removing annotations
 match.clearAnnotations();
+```
+
+### Listening for match events
+
+```js
+// Listening for position changes
+match.addEventListener('positionChange', () => {
+   console.log('Position changed !!');
+});
+
+// Listening for moves made
+match.addEventListener('moveMade', (move) => {
+    console.log('Move made !!');
+    console.log(move);
+});
 ```
 
 ## Contact
