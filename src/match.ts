@@ -198,6 +198,10 @@ export class Match {
         return this.node.getBoard().canWhiteQueenSideCastle();
     }
 
+    public getEPSquare(): Square {
+        return this.node.getBoard().getEpSquare();
+    }
+
     public getMoveCounter(): number {
         return this.node.getBoard().getMoveCounter();
     }
