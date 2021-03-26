@@ -3,6 +3,7 @@ test/
 node_modules/
 tsconfig.json
 .editorconfig
+.travis.yml
 
 *~
 *.sw[mnpcod]
