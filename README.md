@@ -38,17 +38,6 @@ const matchFEN = new Match('1k6/3R4/4P3/8/3b2r1/8/5r2/7K w - - 0 1');
 
 ## Examples
 
-### Making Moves
-```js
-// Making single moves
-match.makeMove('e4');
-match.makeMove('e5');
-match.makeMove('Qh5');
-
-// Making multiple moves
-match.makeMoves(['Nc6', 'Bc4', 'd6', 'Qxf7#']);
-```
-
 ### Getting information from a position
 
 ```js
@@ -59,6 +48,17 @@ console.log('Move Counter: ' + match.getMoveCounter());
 console.log('Half Move Counter: ' + match.getHalfMoveCounter());
 console.log('En Passant Square: ' + match.getEPSquare());
 console.log('FEN: ' + match.getFEN());
+```
+
+### Making Moves
+```js
+// Making single moves
+match.makeMove('e4');
+match.makeMove('e5');
+match.makeMove('Qh5');
+
+// Making multiple moves
+match.makeMoves(['Nc6', 'Bc4', 'd6', 'Qxf7#']);
 ```
 
 ### Getting valid moves
