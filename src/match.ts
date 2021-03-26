@@ -9,6 +9,7 @@ import {Piece} from "./piece";
 
 export class Match {
 
+    private currentNode: MatchNode;
     private node: MatchNode;
     private tags: Map<PgnTag, string>;
     private listeners: Map<string, Array<(...args: any[]) => void>>;
@@ -56,6 +57,7 @@ export class Match {
             }
         }
         this.setNode(node, silent);
+        this.currentNode = node;
         this.tags = tags;
     }
 
@@ -117,7 +119,7 @@ export class Match {
     }
 
     public goToPosition(ply?: number): Match {
-        return this.setNode(ply >= 0 ? this.node.getNode(ply) : this.node.getMainNode());
+        return this.setNode(ply >= 0 ? this.currentNode.getNode(ply) : this.currentNode);
     }
 
     public goToStartPosition(): Match {
@@ -125,7 +127,7 @@ export class Match {
     }
 
     public goToCurrentPosition(): Match {
-        return this.setNode(this.node.getMainNode());
+        return this.setNode(this.currentNode);
     }
 
     public goToPreviousPosition(): Match {
@@ -216,7 +218,7 @@ export class Match {
 
     public getMove(ply?: number): Move|null {
         let move: Move = null;
-        const node = ply >= 0 ? this.node.getNode(ply + 1) : this.node;
+        const node = ply >= 0 ? this.currentNode.getNode(ply + 1) : this.node;
         if (node) {
             const parentNode = node.getParentNode();
             if (parentNode) {
@@ -226,10 +228,11 @@ export class Match {
         return move;
     }
 
-    public makeMove(move: Move|string, silent = false): boolean {
+    public makeMove(move: Move|string, onMainLine = false,  silent = false): boolean {
         let moveMade = false;
         let legalMove: Move = null;
-        const moves = this.node.getBoard().getLegalMoves(true);
+        const node = onMainLine ? this.currentNode : this.node;
+        const moves = node.getBoard().getLegalMoves(true);
         for (const testMove of moves) {
             if (move instanceof Move) {
                 if (testMove.equals(move)) {
@@ -245,51 +248,64 @@ export class Match {
             }
         }
         if (legalMove != null) {
-            const variationMoves = this.getVariationMoves();
+            const variationMoves = node.getMoves();
             let inVariationMove = false;
             if (variationMoves) {
                 for (const variationMove of variationMoves) {
                     if (variationMove.getSAN() == legalMove.getSAN()) {
-                        this.setNode(this.node.getChildNode(variationMove), silent);
+                        this.setNode(node.getChildNode(variationMove), silent);
                         inVariationMove = true;
                         break;
                     }
                 }
             }
             if (!inVariationMove) {
-                const board = this.node.getBoard().clone();
+                const board = node.getBoard().clone();
                 board.makeMove(legalMove);
                 const newNode = new MatchNode(board);
-                this.node.addChild(legalMove, newNode);
-                this.setNode(newNode, silent);
+                node.addChild(legalMove, newNode);
+                if (node == this.currentNode) {
+                    this.currentNode = newNode;
+                }
+                if (node == this.node) {
+                    this.setNode(newNode, silent);
+                }
+                if (!silent) {
+                    this.triggerEvent('moveMade', legalMove, this.node == this.currentNode);
+                }
             }
             moveMade = true;
         }
         return moveMade;
     }
 
-    public unmakeMove(silent = false): boolean {
+    public unmakeMove(onMainLine = false, silent = false): boolean {
         let moveUnmade = false;
-        const currentNode = this.node;
-        if (currentNode.getParentNode()) {
-            const parentNode = currentNode.getParentNode();
-            parentNode.removeChild(currentNode);
-            this.setNode(parentNode, silent);
+        const node = onMainLine ? this.currentNode : this.node;
+        if (node.getParentNode()) {
+            const parentNode = node.getParentNode();
+            const removedMove = parentNode.removeChild(node);
+            if (node == this.currentNode) {
+                this.currentNode = parentNode;
+            }
+            if (node == this.node) {
+                this.setNode(parentNode, silent);
+            }
+            if (!silent) {
+                this.triggerEvent('moveUnmade', removedMove, this.node == this.currentNode);
+            }
             moveUnmade = true;
         }
         return moveUnmade;
     }
 
-    public makeMoves(moves: Array<Move|string>, silent = false): boolean {
+    public makeMoves(moves: Array<Move|string>, onMainLine = false, silent = false): boolean {
         let movesMade = true;
         for (const move of moves) {
-            if (!this.makeMove(move, true)) {
+            if (!this.makeMove(move, onMainLine, silent)) {
                 movesMade = false;
                 break;
             }
-        }
-        if (!silent) {
-            this.triggerEvent('positionChange');
         }
         return movesMade;
     }
@@ -302,11 +318,6 @@ export class Match {
             currentMatchNode = currentMatchNode.getParentNode();
         }
         return moves;
-    }
-
-    public setMoveLine(moves: Array<Move|string>): boolean {
-        this.setNode(new MatchNode(new Board()), true);
-        return this.makeMoves(moves);
     }
 
     public promoteMoveLine(): Match {

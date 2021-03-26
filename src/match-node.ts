@@ -84,16 +84,16 @@ export class MatchNode {
         this.childNodes.set(move, node);
     }
 
-    public removeChild(node: MatchNode): boolean {
-        let childRemoved = false;
+    public removeChild(node: MatchNode): Move {
+        let removedMove: Move = null;
         for (const move of this.childNodes.keys()) {
             if (node == this.childNodes.get(move)) {
                 this.childNodes.delete(move);
-                childRemoved = true;
+                removedMove = move;
                 break;
             }
         }
-        return childRemoved;
+        return removedMove;
     }
 
     public getChildNode(move: Move): MatchNode {
