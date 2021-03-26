@@ -12,6 +12,7 @@ export class MatchNode {
     private board: Board;
     private comment: string;
     private annotations: Array<Annotation>;
+    private properties: Map<string, any> = null;
 
     constructor(board: Board) {
         this.id = MatchNode.nodeCounter++;
@@ -159,5 +160,17 @@ export class MatchNode {
 
     public getAnnotations(): Array<Annotation> {
         return this.annotations;
+    }
+
+    public setProperty(key: string, value: any): MatchNode {
+        if (!this.properties) {
+            this.properties = new Map<string, any>();
+        }
+        this.properties.set(key, value);
+        return this;
+    }
+
+    public getProperty(key: string): any {
+        return this.properties ? this.properties.get(key) : undefined;
     }
 }

@@ -373,6 +373,15 @@ export class Match {
         return this.node.getAnnotations();
     }
 
+    public setProperty(key: string, value: any): Match {
+        this.node.setProperty(key, value);
+        return this;
+    }
+
+    public getProperty(key: string): any {
+        return this.node.getProperty(key);
+    }
+
     private updateState(): Match {
         const node = this.currentNode;
         const board = node.getBoard();
