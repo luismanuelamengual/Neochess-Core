@@ -14,11 +14,7 @@ This library has been extensively tested with Jest.
 ## Installation
 
 ```
-# NPM
 npm install @neochess/core
-
-# Yarn
-yarn add @neochess/core
 ```
 
 ## Getting started
