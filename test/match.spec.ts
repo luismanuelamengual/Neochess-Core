@@ -119,8 +119,15 @@ describe("Match tests", () => {
         match.goToCurrentPosition();
         expect(match.getFEN()).toEqual(currentFen);
         match.goToPositionId(positionId);
+        match.makeMoves(['Nxf6', 'd4', 'd5', 'Bb5'], true);
+        match.unmakeMove(true);
+        match.makeMove('h3', true);
         expect(match.getFEN()).toEqual(positionFen);
+        match.goToCurrentPosition();
+        const lastFen = match.getFEN();
         match.goToStartPosition();
         expect(match.getFEN()).toEqual(startingFen);
+        match.goToCurrentPosition();
+        expect(match.getFEN()).toEqual(lastFen);
     });
 });
