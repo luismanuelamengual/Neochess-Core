@@ -6,6 +6,7 @@ export * from './rank';
 export * from './square';
 export * from './board';
 export * from './match';
+export * from './match-state';
 export * from './move';
 export * from './board-utils';
 export * from './pgn-tag';

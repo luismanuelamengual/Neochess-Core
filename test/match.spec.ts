@@ -1,5 +1,6 @@
 import {Match} from "../src/match";
 import {Annotation} from "../src/annotation";
+import {MatchState} from "../src";
 
 describe("Match tests", () => {
 
@@ -42,7 +43,7 @@ describe("Match tests", () => {
         match.makeMove('Qf3');
         match.makeMove('d6');
         match.addComments('APA !! aca me deje mate en 1');
-        match.makeMove('Qxf7#');
+        match.makeMove('Nc3');
         match.goToPosition(2);
         match.makeMove('Nf3');
         match.makeMove('Bb4');
@@ -50,7 +51,7 @@ describe("Match tests", () => {
         match.makeMove('a3');
         match.unmakeMove();
         match.makeMove('c3');
-        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Qxf7# 1-0');
+        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 d6 {APA !! aca me deje mate en 1} 5.Nc3 *');
         match.makeMove('Ba5');
         match.goToCurrentPosition();
         match.unmakeMove();
@@ -74,21 +75,6 @@ describe("Match tests", () => {
         match.makeMove('exd4');
         match.makeMove('Bg5');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 $2 (3...Qf6 4.d4 exd4 5.Bg5) 4.Qf3 Qf6 $1 5.Qxf6 Nxf6 *');
-        match.promoteMoveLine();
-        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 *');
-        match.makeMove('Qg6');
-        match.makeMove('Qh3');
-        match.makeMove('Qd6');
-        match.makeMove('Qh5');
-        match.makeMove('Qg6');
-        match.makeMove('Qh3');
-        match.makeMove('Qd6');
-        match.makeMove('Qh5');
-        match.makeMove('Qg6');
-        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 Qg6 6.Qh3 Qd6 7.Qh5 Qg6 8.Qh3 Qd6 9.Qh5 Qg6 1/2-1/2');
-        match.goToPreviousPosition();
-        match.makeMove('Qg6');
-        expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...Qf6 (3...g6 $2 4.Qf3 Qf6 $1 5.Qxf6 Nxf6) 4.d4 exd4 5.Bg5 Qg6 6.Qh3 Qd6 7.Qh5 Qg6 8.Qh3 Qd6 9.Qh5 Qg6 1/2-1/2');
         const pgn = match.getPGN();
         match.setPGN(pgn);
         expect(match.getPGN()).toEqual(pgn);
@@ -129,5 +115,37 @@ describe("Match tests", () => {
         expect(match.getFEN()).toEqual(startingFen);
         match.goToCurrentPosition();
         expect(match.getFEN()).toEqual(lastFen);
+    });
+
+    test("States", () => {
+        const match = new Match();
+        expect(match.getState()).toEqual(MatchState.ONGOING);
+        match.makeMoves(['e3', 'g5', 'Nc3', 'f6', 'Qh5#']);
+        expect(match.getState()).toEqual(MatchState.WHITE_WINS);
+        match.startNew();
+        match.makeMoves(['f3', 'e6', 'g4', 'Qh4#']);
+        expect(match.getState()).toEqual(MatchState.BLACK_WINS);
+        match.startNew('1k6/3R4/4P3/8/3b2r1/8/5r2/7K w - - 0 1');
+        expect(match.getState()).toEqual(MatchState.ONGOING);
+        match.makeMove('e7');
+        match.makeMoves(['Rh4+', 'Kg1', 'Rg4+', 'Kh1', 'Rh4+', 'Kg1', 'Rg4+', 'Kh1']);
+        expect(match.getState()).toEqual(MatchState.DRAW);
+        match.startNew('K7/5R2/8/8/6k1/6q1/8/8 w - - 0 1');
+        expect(match.getState()).toEqual(MatchState.ONGOING);
+        match.makeMove('Rc7');
+        match.makeMove('Qxc7');
+        expect(match.getState()).toEqual(MatchState.DRAW);
+        match.startNew('4k3/8/8/8/2BB1K2/8/8/8 b - - 46 4');
+        expect(match.makeMove('Ke7')).toEqual(true);
+        expect(match.makeMove('Kf5')).toEqual(true);
+        expect(match.makeMove('Kf8')).toEqual(true);
+        expect(match.makeMove('Bc5+')).toEqual(true);
+        expect(match.getState()).toEqual(MatchState.DRAW);
+        match.startNew('8/2KP4/8/6k1/8/8/3r4/7n w - - 0 1');
+        expect(match.getState()).toEqual(MatchState.ONGOING);
+        expect(match.makeMove('d8=Q+')).toEqual(true);
+        expect(match.makeMove('Rxd8')).toEqual(true);
+        expect(match.makeMove('Kxd8')).toEqual(true);
+        expect(match.getState()).toEqual(MatchState.DRAW);
     });
 });

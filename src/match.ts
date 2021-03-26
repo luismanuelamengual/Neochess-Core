@@ -6,12 +6,14 @@ import {Side} from "./side";
 import {Square} from "./square";
 import {Annotation} from "./annotation";
 import {Piece} from "./piece";
+import {MatchState} from "./match-state";
 
 export class Match {
 
     private currentNode: MatchNode;
     private node: MatchNode;
     private tags: Map<PgnTag, string>;
+    private state: MatchState;
     private listeners: Map<string, Array<(...args: any[]) => void>>;
 
     constructor();
@@ -56,9 +58,11 @@ export class Match {
                 tags.set(PgnTag.FEN, boardFEN);
             }
         }
+        this.setState(MatchState.ONGOING);
         this.setNode(node, silent);
         this.currentNode = node;
         this.tags = tags;
+        this.triggerEvent('matchStart');
     }
 
     public addEventListener(event: string, listener: (...args: any[]) => void): Match {
@@ -91,6 +95,20 @@ export class Match {
                 } catch (e) {
                     console.log(e);
                 }
+            }
+        }
+        return this;
+    }
+
+    public getState(): MatchState {
+        return this.state;
+    }
+
+    public setState(state: MatchState, silent = false): Match {
+        if (this.state != state) {
+            this.state = state;
+            if (!silent) {
+                this.triggerEvent('stateChange', this.state);
             }
         }
         return this;
@@ -230,51 +248,58 @@ export class Match {
 
     public makeMove(move: Move|string, onMainLine = false,  silent = false): boolean {
         let moveMade = false;
-        let legalMove: Move = null;
         const node = onMainLine ? this.currentNode : this.node;
-        const moves = node.getBoard().getLegalMoves(true);
-        for (const testMove of moves) {
-            if (move instanceof Move) {
-                if (testMove.equals(move)) {
-                    legalMove = testMove;
-                    break;
-                }
-            } else {
-                const testMoveSAN = testMove.getSAN();
-                if (testMoveSAN == move) {
-                    legalMove = testMove;
-                    break;
-                }
-            }
-        }
-        if (legalMove != null) {
-            const variationMoves = node.getMoves();
-            let inVariationMove = false;
-            if (variationMoves) {
-                for (const variationMove of variationMoves) {
-                    if (variationMove.getSAN() == legalMove.getSAN()) {
-                        this.setNode(node.getChildNode(variationMove), silent);
-                        inVariationMove = true;
+        if (node != this.currentNode || this.state == MatchState.ONGOING) {
+            let legalMove: Move = null;
+            const moves = node.getBoard().getLegalMoves(true);
+            for (const testMove of moves) {
+                if (move instanceof Move) {
+                    if (testMove.equals(move)) {
+                        legalMove = testMove;
+                        break;
+                    }
+                } else {
+                    const testMoveSAN = testMove.getSAN();
+                    if (testMoveSAN == move) {
+                        legalMove = testMove;
                         break;
                     }
                 }
             }
-            if (!inVariationMove) {
-                const board = node.getBoard().clone();
-                board.makeMove(legalMove);
-                const newNode = new MatchNode(board);
-                node.addChild(legalMove, newNode);
-                if (node == this.currentNode) {
-                    this.currentNode = newNode;
+            if (legalMove != null) {
+                const variationMoves = node.getMoves();
+                let inVariationMove = false;
+                if (variationMoves) {
+                    for (const variationMove of variationMoves) {
+                        if (variationMove.getSAN() == legalMove.getSAN()) {
+                            this.setNode(node.getChildNode(variationMove), silent);
+                            inVariationMove = true;
+                            break;
+                        }
+                    }
                 }
-                if (node == this.node) {
-                    this.setNode(newNode, silent);
+                if (!inVariationMove) {
+                    const board = node.getBoard().clone();
+                    board.makeMove(legalMove);
+                    const newNode = new MatchNode(board);
+                    node.addChild(legalMove, newNode);
+                    let shouldUpdateState = false;
+                    if (node == this.currentNode) {
+                        this.currentNode = newNode;
+                        shouldUpdateState = true;
+                    }
+                    if (node == this.node) {
+                        this.setNode(newNode, silent);
+                    }
+                    if (!silent) {
+                        this.triggerEvent('moveMade', legalMove, this.node == this.currentNode);
+                    }
+                    if (shouldUpdateState) {
+                        this.updateState();
+                    }
                 }
-                if (!silent) {
-                    this.triggerEvent('moveMade', legalMove, this.node == this.currentNode);
-                }
+                moveMade = true;
             }
-            moveMade = true;
         }
         return moveMade;
     }
@@ -282,7 +307,7 @@ export class Match {
     public unmakeMove(onMainLine = false, silent = false): boolean {
         let moveUnmade = false;
         const node = onMainLine ? this.currentNode : this.node;
-        if (node.getParentNode()) {
+        if (node.getParentNode() && (node != this.currentNode || this.state == MatchState.ONGOING)) {
             const parentNode = node.getParentNode();
             const removedMove = parentNode.removeChild(node);
             if (node == this.currentNode) {
@@ -320,11 +345,6 @@ export class Match {
         return moves;
     }
 
-    public promoteMoveLine(): Match {
-        this.node.promote();
-        return this;
-    }
-
     public addComments(comment: string): Match {
         this.node.setComment(comment);
         return this;
@@ -353,59 +373,53 @@ export class Match {
         return this.node.getAnnotations();
     }
 
-    public isStaleMate(): boolean {
-        return this.node.getBoard().isStaleMate();
-    }
-
-    public isDrawByFiftyMoveRule(): boolean {
-        return this.node.getBoard().isDrawByFiftyMoveRule();
-    }
-
-    public isDrawByInsufficientMaterial(): boolean {
-        return this.node.getBoard().isDrawByInsufficientMaterial();
-    }
-
-    public isDrawByRepetition(): boolean {
-        let isDrawByRepetition = false;
-        let repetitionsCount = 0;
-        const currentBoard = this.node.getBoard();
-        let boardsToCheck = currentBoard.getHalfMoveCounter();
-        if (boardsToCheck > 7) {
-            let testNode = this.node.getParentNode();
-            while (testNode && boardsToCheck > 0) {
-                let areEquals = true;
-                for (let square = Square.A1; square <= Square.H8; square++) {
-                    if (testNode.getBoard().getPiece(square) != currentBoard.getPiece(square)) {
-                        areEquals = false;
-                        break;
+    private updateState(): Match {
+        const node = this.currentNode;
+        const board = node.getBoard();
+        const inCheck = board.inCheck();
+        const hasLegalMoves = board.getLegalMoves().length > 0;
+        let state = MatchState.ONGOING;
+        if (inCheck && !hasLegalMoves) {
+            if (board.getSideToMove() == Side.WHITE) {
+                state = MatchState.BLACK_WINS;
+            } else {
+                state = MatchState.WHITE_WINS;
+            }
+        } else {
+            if ((!inCheck && !hasLegalMoves) || board.isDrawByFiftyMoveRule() || board.isDrawByInsufficientMaterial()) {
+                state = MatchState.DRAW;
+            } else {
+                let boardsToCheck = board.getHalfMoveCounter();
+                if (boardsToCheck > 7) {
+                    let isDrawByRepetition = false;
+                    let repetitionsCount = 0;
+                    let testNode = this.node.getParentNode();
+                    while (testNode && boardsToCheck > 0) {
+                        let areEquals = true;
+                        for (let square = Square.A1; square <= Square.H8; square++) {
+                            if (testNode.getBoard().getPiece(square) != board.getPiece(square)) {
+                                areEquals = false;
+                                break;
+                            }
+                        }
+                        if (areEquals) {
+                            repetitionsCount++;
+                            if (repetitionsCount >= 2) {
+                                isDrawByRepetition = true;
+                                break;
+                            }
+                        }
+                        testNode = testNode.getParentNode();
+                        boardsToCheck--;
+                    }
+                    if (isDrawByRepetition) {
+                        state = MatchState.DRAW;
                     }
                 }
-                if (areEquals) {
-                    repetitionsCount++;
-                    if (repetitionsCount >= 2) {
-                        isDrawByRepetition = true;
-                        break;
-                    }
-                }
-                testNode = testNode.getParentNode();
-                boardsToCheck--;
             }
         }
-        return isDrawByRepetition;
-    }
-
-    public isDraw(): boolean {
-        return this.isStaleMate() || this.isDrawByFiftyMoveRule() || this.isDrawByInsufficientMaterial() || this.isDrawByRepetition();
-    }
-
-    public isWhiteWin(): boolean {
-        const board = this.node.getBoard();
-        return board.getSideToMove() == Side.BLACK && board.isCheckMate();
-    }
-
-    public isBlackWin(): boolean {
-        const board = this.node.getBoard();
-        return board.getSideToMove() == Side.WHITE && board.isCheckMate();
+        this.setState(state);
+        return this;
     }
 
     public setTag(pgn: PgnTag, value: string): Match {
@@ -476,18 +490,21 @@ export class Match {
             }
             return pgn;
         };
-        let backupNode = this.node;
-        this.node = this.node.getMainNode();
         let result = this.tags.get(PgnTag.RESULT);
         if (!result) {
-            if (this.isWhiteWin()) {
-                result = '1-0';
-            } else if (this.isBlackWin()) {
-                result = '0-1';
-            } else if (this.isDraw()) {
-                result = '1/2-1/2'
-            } else {
-                result = '*';
+            switch (this.state) {
+                case MatchState.ONGOING:
+                    result = '*';
+                    break;
+                case MatchState.DRAW:
+                    result = '1/2-1/2'
+                    break;
+                case MatchState.WHITE_WINS:
+                    result = '1-0';
+                    break;
+                case MatchState.BLACK_WINS:
+                    result = '0-1';
+                    break;
             }
         }
         let pgn = '';
@@ -501,7 +518,6 @@ export class Match {
         pgn += '\n';
         pgn += getPGNMoveList(this.node.getRootNode());
         pgn += result;
-        this.node = backupNode;
         return pgn;
     }
 
