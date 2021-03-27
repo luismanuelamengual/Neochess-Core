@@ -87,23 +87,23 @@ match.getPGN();
 ### Adding comments on positions
 
 ```js
-match.addComments('We are in a crucial moment');  // Adding comments to a position
-match.getComments();  // Obtaining the position comments
-match.deleteComments();  // Removing comments of the position
+match.addPositionComments('We are in a crucial moment');  // Adding comments to a position
+match.getPositionComments();  // Obtaining the position comments
+match.clearPositionComments();  // Removing comments of the position
 ```
 
 ### Adding annotations on positions
 
 ```js
 // Adding annotations
-match.addAnnotation(Annotation.VERY_GOOD_MOVE);
-match.addAnnotation(Annotation.QUESTIONABLE_MOVE);
+match.addPositionAnnotation(Annotation.VERY_GOOD_MOVE);
+match.addPositionAnnotation(Annotation.QUESTIONABLE_MOVE);
 
 // Getting annotations
-match.getAnnotations();
+match.getPositionAnnotations();
 
 // Removing annotations
-match.clearAnnotations();
+match.clearPositionAnnotations();
 ```
 
 ### Listening for match events
