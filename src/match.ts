@@ -349,40 +349,40 @@ export class Match {
         return moves;
     }
 
-    public addComments(comment: string): Match {
+    public addPositionComments(comment: string): Match {
         this.node.setComment(comment);
         return this;
     }
 
-    public getComments(): string {
+    public getPositionComments(): string {
         return this.node.getComment();
     }
 
-    public deleteComments(): Match {
+    public clearPositionComments(): Match {
         this.node.deleteComment();
         return this;
     }
 
-    public addAnnotation(annotation: Annotation): Match {
+    public addPositionAnnotation(annotation: Annotation): Match {
         this.node.addAnnotation(annotation);
         return this;
     }
 
-    public clearAnnotations(): Match {
+    public getPositionAnnotations(): Array<Annotation> {
+        return this.node.getAnnotations();
+    }
+
+    public clearPositionAnnotations(): Match {
         this.node.clearAnnotations();
         return this;
     }
 
-    public getAnnotations(): Array<Annotation> {
-        return this.node.getAnnotations();
-    }
-
-    public setProperty(key: string, value: any): Match {
+    public setPositionProperty(key: string, value: any): Match {
         this.node.setProperty(key, value);
         return this;
     }
 
-    public getProperty(key: string): any {
+    public getPositionProperty(key: string): any {
         return this.node.getProperty(key);
     }
 

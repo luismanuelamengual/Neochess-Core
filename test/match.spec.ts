@@ -38,16 +38,16 @@ describe("Match tests", () => {
         match.makeMove('Bc4');
         match.makeMove('Nc6');
         match.makeMove('Qh5');
-        match.addComments('Intento de mate pastor');
+        match.addPositionComments('Intento de mate pastor');
         match.makeMove('g6');
         match.makeMove('Qf3');
         match.makeMove('d6');
-        match.addComments('APA !! aca me deje mate en 1');
+        match.addPositionComments('APA !! aca me deje mate en 1');
         match.makeMove('Nc3');
         match.goToPosition(2);
         match.makeMove('Nf3');
         match.makeMove('Bb4');
-        match.addComments('Estoy en una variante');
+        match.addPositionComments('Estoy en una variante');
         match.makeMove('a3');
         match.unmakeMove();
         match.makeMove('c3');
@@ -58,7 +58,7 @@ describe("Match tests", () => {
         match.unmakeMove();
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 *');
         match.makeMove('Qf6');
-        match.addAnnotation(Annotation.GOOD_MOVE);
+        match.addPositionAnnotation(Annotation.GOOD_MOVE);
         match.makeMove('Qxf6');
         match.makeMove('Nxf6');
         expect(getPGNMoveList(match.getPGN())).toEqual('1.e4 e5 2.Bc4 (2.Nf3 Bb4 {Estoy en una variante} 3.c3 Ba5) 2...Nc6 3.Qh5 {Intento de mate pastor} 3...g6 4.Qf3 Qf6 $1 5.Qxf6 Nxf6 *');
@@ -66,7 +66,7 @@ describe("Match tests", () => {
         match.goToPreviousPosition();
         match.goToPreviousPosition();
         match.goToPreviousPosition();
-        match.addAnnotation(Annotation.POOR_MOVE);
+        match.addPositionAnnotation(Annotation.POOR_MOVE);
         match.goToPreviousPosition();
         match.goToPreviousPosition();
         match.goToNextPosition();
