@@ -91,7 +91,7 @@ export class Match {
         if (eventListeners) {
             for (const eventListener of eventListeners) {
                 try {
-                    eventListener(args);
+                    eventListener(...args);
                 } catch (e) {
                     console.log(e);
                 }
