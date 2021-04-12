@@ -1,12 +1,13 @@
 {
     "name": "@neochess/core",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc",
-        "test": "jest"
+        "test": "jest",
+        "prepublishOnly": "npm run build"
     },
     "jest": {
         "transform": {
