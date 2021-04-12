@@ -253,6 +253,7 @@ export class Match {
     public makeMove(move: Move|string, onMainLine = false,  silent = false): boolean {
         let moveMade = false;
         const node = onMainLine ? this.currentNode : this.node;
+        const onCurrentNode = node == this.node;
         if (node != this.currentNode || this.state == MatchState.ONGOING) {
             let legalMove: Move = null;
             const moves = node.getBoard().getLegalMoves(true);
@@ -296,7 +297,7 @@ export class Match {
                         this.setNode(newNode, silent);
                     }
                     if (!silent) {
-                        this.triggerEvent('moveMade', legalMove, this.node == this.currentNode);
+                        this.triggerEvent('moveMade', legalMove, onCurrentNode);
                     }
                     if (shouldUpdateState) {
                         this.updateState();
@@ -311,7 +312,8 @@ export class Match {
     public unmakeMove(onMainLine = false, silent = false): boolean {
         let moveUnmade = false;
         const node = onMainLine ? this.currentNode : this.node;
-        if (node.getParentNode() && (node != this.currentNode || this.state == MatchState.ONGOING)) {
+        const onCurrentNode = node == this.node;
+        if (node.getParentNode() && !node.hasChildNodes() && (node != this.currentNode || this.state == MatchState.ONGOING)) {
             const parentNode = node.getParentNode();
             const removedMove = parentNode.removeChild(node);
             if (node == this.currentNode) {
@@ -321,7 +323,7 @@ export class Match {
                 this.setNode(parentNode, silent);
             }
             if (!silent) {
-                this.triggerEvent('moveUnmade', removedMove, this.node == this.currentNode);
+                this.triggerEvent('moveUnmade', removedMove, onCurrentNode);
             }
             moveUnmade = true;
         }

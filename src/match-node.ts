@@ -105,6 +105,10 @@ export class MatchNode {
         return Array.from(this.childNodes.values());
     }
 
+    public hasChildNodes(): boolean {
+        return this.childNodes.size > 0;
+    }
+
     public getMoves(): Array<Move> {
         return Array.from(this.childNodes.keys());
     }
