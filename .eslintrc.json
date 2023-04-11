@@ -1,0 +1,26 @@
+{
+  "env": {
+    "jest": true,
+    "node": true,
+    "browser": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "quotes": ["error", "single"],
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-console": "error",
+    "no-unused-vars": "off",
+    "no-trailing-spaces": "error",
+    "no-constant-condition":"off",
+    "no-case-declarations": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "indent": "off",
+    "@typescript-eslint/indent": ["error", 2],
+    "import/no-anonymous-default-export": "off",
+    "no-dupe-class-members": "off",
+    "prefer-const": "warn",
+    "semi": ["error", "always"]
+  },
+  "parser": "@typescript-eslint/parser"
+}

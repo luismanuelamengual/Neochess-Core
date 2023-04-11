@@ -1,31 +1,36 @@
 {
-    "name": "@neochess/core",
-    "version": "1.0.3",
-    "description": "",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "test": "jest",
-        "prepublishOnly": "npm run build"
+  "name": "@neochess/core",
+  "version": "1.0.3",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
     },
-    "jest": {
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
-        "moduleFileExtensions": [
-            "ts",
-            "js"
-        ],
-        "testRegex": "^.+\\.spec\\.ts$"
-    },
-    "keywords": [],
-    "author": "Luis Manuel Amengual",
-    "license": "ISC",
-    "devDependencies": {
-        "@types/jest": "^26.0.20",
-        "jest": "^26.6.3",
-        "ts-jest": "^26.4.4",
-        "typescript": "^4.1.3"
-    }
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testRegex": "^.+\\.spec\\.ts$"
+  },
+  "keywords": [],
+  "author": "Luis Manuel Amengual",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.1.3",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "^2.6.2",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0"
+  }
 }

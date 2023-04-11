@@ -1,25 +1,26 @@
 {
-    "compilerOptions": {
-        "allowSyntheticDefaultImports": true,
-        "allowUnreachableCode": false,
-        "declaration": true,
-        "experimentalDecorators": true,
-        "lib": [
-            "dom",
-            "es2017"
-        ],
-        "moduleResolution": "node",
-        "module": "esnext",
-        "target": "es2017",
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "outDir": "./dist"
-    },
-    "include": [
-        "src"
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "dom",
+      "es2017"
     ],
-    "exclude": [
-        "node_modules",
-        "dist"
-    ]
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "es2017",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
